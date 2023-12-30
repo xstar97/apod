@@ -69,7 +69,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{ padding: '10px', margin: '10px' }}>
       <NavigationButtons onDateChange={handleDateChange} onCalenderChange={handleCalendarChange} currentDate={date} />
       {loading ? (
         <LoadingComponent />
