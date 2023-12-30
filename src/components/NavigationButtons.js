@@ -1,9 +1,13 @@
 import React from 'react';
 import { getCurrentDate } from '../Utils.js';
 
-const NavigationButtons = ({ onDateChange, currentDate }) => {
+const NavigationButtons = ({ onDateChange, onCalenderChange, currentDate }) => {
   const handleDateChange = (increment) => {
     onDateChange(increment);
+  };
+
+  const handleCalendarChange = (date) => {
+    onCalenderChange(date)
   };
 
   return (
@@ -14,6 +18,11 @@ const NavigationButtons = ({ onDateChange, currentDate }) => {
       >
         Previous {currentDate && `(${getFormattedDate(currentDate, -1)})`}
       </button>
+      <input
+        type="date"
+        value={currentDate}
+        onChange={(e) => handleCalendarChange(e.target.value)}
+      />
       <button
         className="nav-button"
         onClick={() => handleDateChange(1)}

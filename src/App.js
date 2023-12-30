@@ -60,9 +60,17 @@ function App() {
     setDate(formattedDate);
   };
 
+  const handleCalendarChange = (date) => {
+    const newDate = new Date(date);
+    const formattedDate = newDate.toISOString().split('T')[0];
+
+    updateUrlQueryParam('date', formattedDate);
+    setDate(formattedDate);
+  };
+
   return (
     <div className="App">
-      <NavigationButtons onDateChange={handleDateChange} currentDate={date} />
+      <NavigationButtons onDateChange={handleDateChange} onCalenderChange={handleCalendarChange} currentDate={date} />
       {loading ? (
         <LoadingComponent />
       ) : (
