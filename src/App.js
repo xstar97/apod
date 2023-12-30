@@ -3,10 +3,12 @@ import './App.css';
 import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
 import ApodComponent from './components/ApodComponent.js';
 import LoadingComponent from './components/LoadingComponent.js';
+import NavigationButtons from './components/NavigationButtons.js';
 
 function App() {
   const [date, setDate] = useState(null);
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Get date from query parameter or use today's date
@@ -27,6 +29,8 @@ function App() {
   useEffect(() => {
     // Fetch data only if the date is set
     if (date) {
+      setLoading(true);
+
       fetch(`${API_ROUTE}?date=${date}`)
         .then(response => response.json())
         .then(data => {
@@ -40,18 +44,33 @@ function App() {
           if (faviconUrl) {
             setFavicon(faviconUrl);
           }
-          setMetaTags(data)
+          setMetaTags(data);
         })
-        .catch(error => console.error('Error fetching data:', error));
+        .catch(error => console.error('Error fetching data:', error))
+        .finally(() => setLoading(false));
     }
   }, [date]);
 
+  const handleDateChange = (increment) => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + increment);
+    const formattedDate = newDate.toISOString().split('T')[0];
+
+    updateUrlQueryParam('date', formattedDate);
+    setDate(formattedDate);
+  };
+
   return (
     <div className="App">
-      {data ? (
-        <ApodComponent data={data} />
-      ) : (
+      <NavigationButtons onDateChange={handleDateChange} currentDate={date} />
+      {loading ? (
         <LoadingComponent />
+      ) : (
+        data ? (
+          <ApodComponent data={data} />
+        ) : (
+          <LoadingComponent />
+        )
       )}
     </div>
   );

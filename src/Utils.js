@@ -1,5 +1,6 @@
 export const TITLE = 'Astronomy Picture of the Day'
 export const API_ROUTE = `https://api.apod.xstar97thenoob.com`
+export const DATE_EARLIEST = '1995-06-20'
 
 export const updateUrlQueryParam = (key, value) => {
     const url = new URL(window.location.href);

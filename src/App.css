@@ -47,3 +47,17 @@ body {
   width: 512px;
   height: 512px;
 }
+
+/* Add these styles to make buttons larger and side by side */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Center vertically */
+  width: 100%; /* Full width */
+}
+
+.nav-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
