@@ -43,17 +43,30 @@ body {
   }
 }
 
-#gallery-image {
-  width: 512px;
-  height: 512px;
+#media-container {
+  margin: 20px;
 }
 
-/* Add these styles to make buttons larger and side by side */
+#media-image,
+#media-video {
+  width: 512px;
+  height: 512px;
+  margin: 10px;
+}
+
+#description-container {
+  width: 512px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left; /* Align text to the left */
+}
+
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Center vertically */
-  width: 100%; /* Full width */
+  align-items: center;
+  width: 100%;
 }
 
 .nav-button {
