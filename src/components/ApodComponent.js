@@ -1,54 +1,50 @@
-import React from 'react';
+import React, { useState } from "react";
+import NavigationButtons from "./NavigationButtons";
 
-const ApodComponent = ({ data }) => {
-  const isVideo = data.media_type === 'video';
+const ApodComponent = ({ data, date, onDateChange, onCalendarChange }) => {
+  const [mediaLoaded, setMediaLoaded] = useState(false);
 
   return (
-    <div id="image-container" style={{ margin: '20px' }}>
-      <h1 id="gallery-title">{data.title}</h1>
-      <p id="gallery-date">{data.date}</p>
-
-      {data.copyright && (
-        <p id="gallery-copyright">Copyright: {data.copyright}</p>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {isVideo ? (
-          <div style={{ width: '512px', margin: '10px' }}>
-            <iframe
-              id="media-video"
-              title={data.title}
-              width="512"
-              height="512"
-              src={data.url}
-              allowFullScreen
-            ></iframe>
-          </div>
+    <>
+      <div className="media-container">
+        {!mediaLoaded && <div className="media-skeleton glitch-shimmer"></div>}
+        {data.media_type === "video" ? (
+          <iframe
+            src={data.url}
+            title={data.title}
+            width="512"
+            height="512"
+            allowFullScreen
+            className={mediaLoaded ? "media-visible" : "media-hidden"}
+            onLoad={() => setMediaLoaded(true)}
+          />
         ) : (
           <img
-            id="gallery-image"
             src={data.hdurl}
-            alt=""
-            style={{ width: '512px', height: '512px', margin: '10px' }}
+            alt={data.title}
+            width="512"
+            height="512"
+            className={mediaLoaded ? "media-visible" : "media-hidden"}
+            onLoad={() => setMediaLoaded(true)}
           />
         )}
-
-        {data.explanation && (
-          <div
-            id="description-container"
-            style={{
-              width: '512px',
-              margin: '10px',
-              padding: '10px',
-              border: '1px solid #ccc',
-              display: data.explanation ? 'block' : 'none',
-            }}
-          >
-            <p id="full-description">{data.explanation}</p>
-          </div>
-        )}
       </div>
-    </div>
+
+      <div className="info-container">
+        <h1>{data.title}</h1>
+        <p>{data.date}</p>
+        {data.copyright && <p>Copyright: {data.copyright}</p>}
+        <div className="description-container">
+          <p>{data.explanation}</p>
+        </div>
+
+        <NavigationButtons
+          currentDate={date}
+          onDateChange={onDateChange}
+          onCalendarChange={onCalendarChange}
+        />
+      </div>
+    </>
   );
 };
 

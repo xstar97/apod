@@ -1,84 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
-import ApodComponent from './components/ApodComponent.js';
-import LoadingComponent from './components/LoadingComponent.js';
-import NavigationButtons from './components/NavigationButtons.js';
+import React, { useState, useEffect } from "react";
+import ApodComponent from "./components/ApodComponent";
+import LoadingComponent from "./components/LoadingComponent";
+import "./App.css";
+import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from "./Utils";
 
 function App() {
   const [date, setDate] = useState(null);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get date from query parameter or use today's date
-    const urlParams = new URLSearchParams(window.location.search);
-    const queryDate = urlParams.get('date');
+    const params = new URLSearchParams(window.location.search);
+    const queryDate = params.get("date");
 
-    if (queryDate && isValidDate(queryDate)) {
-      // If a valid date is provided in the query, use it
-      setDate(queryDate);
-    } else {
-      // Otherwise, use the current date
-      const currentDate = getCurrentDate();
-      setDate(currentDate);
-      updateUrlQueryParam('date', currentDate);
+    if (queryDate && isValidDate(queryDate)) setDate(queryDate);
+    else {
+      const today = getCurrentDate();
+      setDate(today);
+      updateUrlQueryParam("date", today);
     }
   }, []);
 
   useEffect(() => {
-    // Fetch data only if the date is set
-    if (date) {
-      setLoading(true);
+    if (!date) return;
 
-      fetch(`${API_ROUTE}?date=${date}`)
-        .then(response => response.json())
-        .then(data => {
-          setData(data);
-
-          // Set the page title using data.title
-          document.title = data.title || TITLE;
-          document.description = data.description || "";
-          // Set the favicon using data.hdurl or data.url
-          const faviconUrl = data.hdurl || data.url;
-          if (faviconUrl) {
-            setFavicon(faviconUrl);
-          }
-          setMetaTags(data);
-        })
-        .catch(error => console.error('Error fetching data:', error))
-        .finally(() => setLoading(false));
-    }
+    setLoading(true);
+    fetch(`${API_ROUTE}?date=${date}`)
+      .then(res => res.json())
+      .then(d => {
+        setData(d);
+        document.title = d.title || TITLE;
+        const faviconUrl = d.hdurl || d.url;
+        if (faviconUrl) setFavicon(faviconUrl);
+        setMetaTags(d);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [date]);
 
   const handleDateChange = (increment) => {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + increment);
-    const formattedDate = newDate.toISOString().split('T')[0];
-
-    updateUrlQueryParam('date', formattedDate);
-    setDate(formattedDate);
+    const formatted = newDate.toISOString().split("T")[0];
+    updateUrlQueryParam("date", formatted);
+    setDate(formatted);
   };
 
-  const handleCalendarChange = (date) => {
-    const newDate = new Date(date);
-    const formattedDate = newDate.toISOString().split('T')[0];
-
-    updateUrlQueryParam('date', formattedDate);
-    setDate(formattedDate);
+  const handleCalendarChange = (newDate) => {
+    const formatted = new Date(newDate).toISOString().split("T")[0];
+    updateUrlQueryParam("date", formatted);
+    setDate(formatted);
   };
 
   return (
-    <div className="App" style={{ padding: '10px', margin: '10px' }}>
-      <NavigationButtons onDateChange={handleDateChange} onCalenderChange={handleCalendarChange} currentDate={date} />
+    <div className="apod-main">
       {loading ? (
-        <LoadingComponent />
+        <LoadingComponent realData={data || { title: "Loading...", date: getCurrentDate(), explanation: "Fetching data..." }} />
       ) : (
-        data ? (
-          <ApodComponent data={data} />
-        ) : (
-          <LoadingComponent />
-        )
+        <ApodComponent
+          data={data}
+          date={date}
+          onDateChange={handleDateChange}
+          onCalendarChange={handleCalendarChange}
+        />
       )}
     </div>
   );

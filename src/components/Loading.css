@@ -1,90 +1,59 @@
-/* LoadingComponent.css */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1.5rem;
-  padding: 1rem;
-  max-width: 900px;
-  margin: 0 auto;
+.media-skeleton {
+  width: 512px;
+  height: 512px;
+  background: linear-gradient(90deg, #111 25%, #222 50%, #111 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: shimmer 1.5s infinite;
 }
 
-/* Alien-style animated pseudo text */
-.loading-text {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1.2rem;
+.glitch-shimmer {
+  animation: shimmer 1.5s infinite, glitch 0.3s infinite;
+}
+
+.info-skeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.description-skeleton {
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-width: 512px;
+}
+
+.alien-glitch {
+  font-family: monospace;
   color: #39ff14;
   text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14;
-  animation: flicker 2s infinite;
-  margin-bottom: 1rem;
+  animation: flicker 1s infinite alternate;
 }
 
-/* Image skeleton */
-.skeleton-image {
+.nav-skeleton {
+  height: 40px;
+  background: #111;
   width: 100%;
-  max-width: 800px;
-  height: 450px;
-  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
-  background-size: 200% 100%;
-  border-radius: 10px;
-  animation: shimmer 1.5s infinite;
+  max-width: 512px;
+  border-radius: 4px;
 }
 
-/* Title skeleton */
-.skeleton-title {
-  width: 60%;
-  height: 24px;
-  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
-  background-size: 200% 100%;
-  border-radius: 6px;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Description skeleton (contained, not full width) */
-.skeleton-description-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 700px;
-}
-
-.skeleton-description {
-  height: 14px;
-  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
-  background-size: 200% 100%;
-  border-radius: 6px;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-description.short {
-  width: 60%;
-}
-
-.skeleton-description.medium {
-  width: 80%;
-}
-
-.skeleton-description.long {
-  width: 100%;
-}
-
-/* Shimmer animation */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-/* Flicker animation for alien text */
 @keyframes flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
-    opacity: 1;
-  }
-  20%, 24%, 55% {
-    opacity: 0.3;
-  }
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.3; }
+}
+
+@keyframes glitch {
+  0%, 20%, 40%, 60%, 80%, 100% { transform: translate(0); }
+  10% { transform: translate(-2px, 2px); }
+  30% { transform: translate(2px, -2px); }
+  50% { transform: translate(-2px, -2px); }
+  70% { transform: translate(2px, 2px); }
+  90% { transform: translate(-1px, 1px); }
 }

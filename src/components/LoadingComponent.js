@@ -1,83 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Loading.css";
 
-const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+const LoadingComponent = ({ realData }) => {
+  const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+  const randomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
+  const randomString = (length) => Array.from({ length }, randomChar).join("");
 
-// helper to generate alien text
-const randomAlienText = (length) =>
-  Array.from({ length }, () => alienChars[Math.floor(Math.random() * alienChars.length)]).join("");
+  const [title, setTitle] = useState(randomString(realData.title.length));
+  const [date, setDate] = useState(randomString(realData.date.length));
+  const [description, setDescription] = useState(randomString(realData.explanation.length));
 
-// default “skeleton” info
-const defaultData = {
-  title: "⟊⟒⟟⌖⋉ ⋆⍾✧",
-  date: "☌☍-⟟⋇-⚲☄",
-  description:
-    "⟊⟒ ⍾⋇ ⧖⚲ ☌☍⌬ ✧✦✴⋆ ✪✫✬✭✮✯ ✰☄ ⍾⧖ ⚲☌ ☍⌬✧✦ ⋆✪✫...",
-};
-
-const LoadingComponent = () => {
-  const [title, setTitle] = useState(defaultData.title);
-  const [date, setDate] = useState(defaultData.date);
-  const [description, setDescription] = useState(defaultData.description);
-
-  // glitch update to keep it alive
   useEffect(() => {
+    let titleIndex = 0;
+    let dateIndex = 0;
+    let descIndex = 0;
+
     const interval = setInterval(() => {
-      setTitle(randomAlienText(defaultData.title.length));
-      setDate(randomAlienText(defaultData.date.length));
-      setDescription(randomAlienText(defaultData.description.length));
-    }, 250);
+      if (titleIndex < realData.title.length) {
+        setTitle(prev => prev.substring(0, titleIndex) + realData.title[titleIndex] + prev.substring(titleIndex + 1));
+        titleIndex++;
+      }
+      if (dateIndex < realData.date.length) {
+        setDate(prev => prev.substring(0, dateIndex) + realData.date[dateIndex] + prev.substring(dateIndex + 1));
+        dateIndex++;
+      }
+      if (descIndex < realData.explanation.length) {
+        setDescription(prev => prev.substring(0, descIndex) + realData.explanation[descIndex] + prev.substring(descIndex + 1));
+        descIndex++;
+      }
+    }, 50);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [realData]);
 
   return (
-    <div id="image-container" style={{ margin: "20px" }}>
-      {/* Title */}
-      <h1 id="gallery-title" className="alien-glitch">
-        {title}
-      </h1>
-
-      {/* Date */}
-      <p id="gallery-date" className="alien-glitch">
-        {date}
-      </p>
-
-      {/* Fake copyright */}
-      <p id="gallery-copyright" className="alien-glitch">
-        ⧖⚲ ⟊⟒⟟⌖⋉
-      </p>
-
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        {/* Media placeholder */}
-        <div
-          className="skeleton"
-          style={{
-            width: "512px",
-            height: "512px",
-            margin: "10px",
-            borderRadius: "8px",
-            background: "rgba(0,255,0,0.1)",
-            border: "1px solid #0f0",
-          }}
-        ></div>
-
-        {/* Description container */}
-        <div
-          id="description-container"
-          style={{
-            width: "512px",
-            margin: "10px",
-            padding: "10px",
-            border: "1px solid #0f0",
-            background: "rgba(0,255,0,0.05)",
-          }}
-        >
-          <p id="full-description" className="alien-glitch">
-            {description}
-          </p>
+    <>
+      <div className="media-skeleton glitch-shimmer"></div>
+      <div className="info-skeleton">
+        <h1 className="alien-glitch">{title}</h1>
+        <p className="alien-glitch">{date}</p>
+        <p className="alien-glitch">⧖⚲ ⟊⟒⟟⌖⋉</p>
+        <div className="description-skeleton">
+          <p className="alien-glitch">{description}</p>
         </div>
+        <div className="nav-skeleton"></div>
       </div>
-    </div>
+    </>
   );
 };
 
