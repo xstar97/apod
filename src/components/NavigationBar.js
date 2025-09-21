@@ -11,6 +11,7 @@ const NavigationBar = ({ currentDate, onDateChange, onCalendarChange }) => {
         type="date"
         value={currentDate}
         onChange={(e) => onCalendarChange(e.target.value)}
+        className="date-selector"
       />
       {currentDate !== today && (
         <button className="nav-button" onClick={() => onDateChange(1)}>Next</button>

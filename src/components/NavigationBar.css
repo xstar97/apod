@@ -1,20 +1,19 @@
 .navigation-bar {
   position: fixed;
-  bottom: 20px;               /* 20px above bottom edge */
+  bottom: 20px;
   left: 50%;
-  transform: translateX(-50%); /* center horizontally */
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;                  /* spacing between buttons */
+  gap: 20px;
   background: rgba(0, 0, 0, 0.6);
   padding: 10px 20px;
   border-radius: 12px;
   z-index: 10;
 }
 
-.navigation-bar button,
-.navigation-bar input[type="date"] {
+.navigation-bar button {
   padding: 8px 16px;
   font-size: 16px;
   border-radius: 6px;
@@ -23,10 +22,34 @@
   background-color: #39ff14;
   color: black;
   font-weight: bold;
+  transition: transform 0.1s ease, background-color 0.2s ease;
 }
 
+.navigation-bar button:hover {
+  transform: scale(1.05);
+  background-color: #32cc12;
+}
+
+/* Make the date input more prominent */
 .navigation-bar input[type="date"] {
+  padding: 10px 18px;
+  font-size: 18px;               /* slightly bigger */
+  border-radius: 8px;
+  border: 2px solid #39ff14;     /* clear border to indicate clickability */
   background-color: black;
   color: #39ff14;
   font-family: monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+/* Highlight on hover/focus */
+.navigation-bar input[type="date"]:hover,
+.navigation-bar input[type="date"]:focus {
+  border-color: #ffffff;
+  color: #ffffff;
+  outline: none;
+  transform: scale(1.05);
+}
+

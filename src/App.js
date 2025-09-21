@@ -12,6 +12,10 @@ function App() {
   const [mediaLoaded, setMediaLoaded] = useState(false); // track if media has finished loading
   const [infoOpen, setInfoOpen] = useState(false);
 
+  // Helper functions for media type detection
+  const isImage = (media) => media?.media_type === "image";
+  const isVideo = (media) => media?.media_type === "video";
+
   // Initialize date from URL query
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -30,6 +34,7 @@ function App() {
       .finally(() => setLoading(false));
   }, [date]);
 
+  // Date navigation handlers
   const handleDateChange = (inc) => {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + inc);
@@ -44,15 +49,20 @@ function App() {
     setDate(formatted);
   };
 
+  // Show nothing if loading or no data yet
   if (loading || !data) return null;
 
   return (
     <>
       {/* Fullscreen media */}
       <div className="media-container">
-        {!mediaLoaded && <div className="alien-skeleton">⧖⚲ ⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪</div>}
+        {!mediaLoaded && (
+          <div className="alien-skeleton">
+            ⧖⚲ ⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪
+          </div>
+        )}
 
-        {data.media_type === "video" ? (
+        {isVideo(data) && (
           <iframe
             src={data.url}
             title={data.title}
@@ -61,7 +71,9 @@ function App() {
             className={infoOpen ? "obscured" : ""}
             onLoad={() => setMediaLoaded(true)}
           ></iframe>
-        ) : (
+        )}
+
+        {isImage(data) && (
           <img
             src={data.hdurl}
             alt={data.title}
@@ -70,15 +82,19 @@ function App() {
           />
         )}
 
+        {/* Overlay when info panel is open */}
         {infoOpen && <div className="media-overlay"></div>}
       </div>
 
+      {/* Info FAB button */}
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
 
+      {/* Slide-out info panel */}
       <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
+      {/* Bottom navigation bar */}
       <NavigationBar
         currentDate={date}
         onDateChange={handleDateChange}
