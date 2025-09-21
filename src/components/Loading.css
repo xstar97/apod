@@ -1,48 +1,90 @@
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 255, 0, 0.1) 25%,
-    rgba(0, 255, 0, 0.3) 37%,
-    rgba(0, 255, 0, 0.1) 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+/* LoadingComponent.css */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+/* Alien-style animated pseudo text */
+.loading-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.2rem;
+  color: #39ff14;
+  text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14;
+  animation: flicker 2s infinite;
+  margin-bottom: 1rem;
+}
+
+/* Image skeleton */
+.skeleton-image {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Title skeleton */
+.skeleton-title {
+  width: 60%;
+  height: 24px;
+  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Description skeleton (contained, not full width) */
+.skeleton-description-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 700px;
+}
+
+.skeleton-description {
+  height: 14px;
+  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-description.short {
+  width: 60%;
+}
+
+.skeleton-description.medium {
+  width: 80%;
+}
+
+.skeleton-description.long {
+  width: 100%;
+}
+
+/* Shimmer animation */
 @keyframes shimmer {
   0% {
-    background-position: -400% 0;
+    background-position: -200% 0;
   }
   100% {
-    background-position: 400% 0;
+    background-position: 200% 0;
   }
 }
 
-.alien-glitch {
-  animation: glitch 1s infinite alternate;
-  text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-  letter-spacing: 2px;
-}
-
-@keyframes glitch {
-  0% {
-    opacity: 0.8;
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-2px);
-  }
-  40% {
-    transform: translateX(2px);
-  }
-  60% {
-    transform: translateX(-1px);
-  }
-  80% {
-    transform: translateX(1px);
-  }
-  100% {
+/* Flicker animation for alien text */
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
     opacity: 1;
-    transform: translateX(0);
+  }
+  20%, 24%, 55% {
+    opacity: 0.3;
   }
 }

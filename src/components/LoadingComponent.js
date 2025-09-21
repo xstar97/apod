@@ -1,72 +1,82 @@
 import React, { useEffect, useState } from "react";
 import "./Loading.css";
 
-const randomAlienText = (length) => {
-  const chars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+
+// helper to generate alien text
+const randomAlienText = (length) =>
+  Array.from({ length }, () => alienChars[Math.floor(Math.random() * alienChars.length)]).join("");
+
+// default “skeleton” info
+const defaultData = {
+  title: "⟊⟒⟟⌖⋉ ⋆⍾✧",
+  date: "☌☍-⟟⋇-⚲☄",
+  description:
+    "⟊⟒ ⍾⋇ ⧖⚲ ☌☍⌬ ✧✦✴⋆ ✪✫✬✭✮✯ ✰☄ ⍾⧖ ⚲☌ ☍⌬✧✦ ⋆✪✫...",
 };
 
 const LoadingComponent = () => {
-  const [title, setTitle] = useState(randomAlienText(12));
-  const [date, setDate] = useState(randomAlienText(8));
-  const [description, setDescription] = useState(randomAlienText(60));
+  const [title, setTitle] = useState(defaultData.title);
+  const [date, setDate] = useState(defaultData.date);
+  const [description, setDescription] = useState(defaultData.description);
 
-  // periodically mutate alien text for a glitch effect
+  // glitch update to keep it alive
   useEffect(() => {
     const interval = setInterval(() => {
-      setTitle(randomAlienText(12));
-      setDate(randomAlienText(8));
-      setDescription(randomAlienText(60));
-    }, 500);
+      setTitle(randomAlienText(defaultData.title.length));
+      setDate(randomAlienText(defaultData.date.length));
+      setDescription(randomAlienText(defaultData.description.length));
+    }, 800);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div
-      id="loading-view"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        background: "black",
-        color: "#0f0",
-        fontFamily: "monospace",
-      }}
-    >
-      {/* Alien Title */}
-      <h1 className="alien-glitch">{title}</h1>
+    <div id="image-container" style={{ margin: "20px" }}>
+      {/* Title */}
+      <h1 id="gallery-title" className="alien-glitch">
+        {title}
+      </h1>
 
-      {/* Alien Date */}
-      <p className="alien-glitch">{date}</p>
-
-      {/* Alien Media Placeholder */}
-      <div
-        className="skeleton"
-        style={{
-          width: "512px",
-          height: "512px",
-          margin: "20px",
-          borderRadius: "8px",
-          background: "rgba(0,255,0,0.1)",
-          border: "1px solid #0f0",
-        }}
-      ></div>
-
-      {/* Alien Description */}
-      <p
-        className="alien-glitch"
-        style={{
-          width: "512px",
-          textAlign: "left",
-          padding: "10px",
-          border: "1px solid #0f0",
-          background: "rgba(0,255,0,0.05)",
-        }}
-      >
-        {description}
+      {/* Date */}
+      <p id="gallery-date" className="alien-glitch">
+        {date}
       </p>
+
+      {/* Fake copyright */}
+      <p id="gallery-copyright" className="alien-glitch">
+        ⧖⚲ ⟊⟒⟟⌖⋉
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {/* Media placeholder */}
+        <div
+          className="skeleton"
+          style={{
+            width: "512px",
+            height: "512px",
+            margin: "10px",
+            borderRadius: "8px",
+            background: "rgba(0,255,0,0.1)",
+            border: "1px solid #0f0",
+          }}
+        ></div>
+
+        {/* Description container */}
+        <div
+          id="description-container"
+          style={{
+            width: "512px",
+            margin: "10px",
+            padding: "10px",
+            border: "1px solid #0f0",
+            background: "rgba(0,255,0,0.05)",
+          }}
+        >
+          <p id="full-description" className="alien-glitch">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
