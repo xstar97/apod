@@ -19,38 +19,42 @@ const InfoPanel = ({ data, open, onClose }) => {
 
     setDecoding(true);
 
-    // Helper function to decode each text
-    const decodeText = (alienText, realText, setTextFn, steps) => {
-      let chars = alienText.split("");
+    // Local arrays to hold current alien text
+    const titleArray = data.title.split("").map(() => getRandomChar());
+    const dateArray = data.date.split("").map(() => getRandomChar());
+    const descArray = data.explanation.split("").map(() => getRandomChar());
+    const copyRightArray = data.copyright
+      ? data.copyright.split("").map(() => getRandomChar())
+      : [];
+
+    // Generic decode function
+    const decodeText = (arr, text, setFn, steps) => {
       let index = 0;
-
       const interval = setInterval(() => {
+        const step = Math.max(1, Math.floor(text.length / steps));
         let done = true;
-        const step = Math.max(1, Math.floor(realText.length / steps));
-
-        for (let i = 0; i < step && index < realText.length; i++, index++) {
-          chars[index] = realText[index];
+        for (let i = 0; i < step && index < text.length; i++, index++) {
+          arr[index] = text[index];
         }
-
-        setTextFn(chars.join(""));
-
-        if (index < realText.length) done = false;
+        setFn([...arr].join(""));
+        if (index < text.length) done = false;
         if (done) clearInterval(interval);
-      }, 30); // Small interval for smooth transition
+      }, 30);
     };
 
-    decodeText(displayTitle, data.title, setDisplayTitle, 8);
-    decodeText(displayDate, data.date, setDisplayDate, 8);
-    decodeText(displayDesc, data.explanation, setDisplayDesc, 12);
-    if (displayCopyRight) decodeText(displayCopyRight, data.copyright, setDisplayCopyRight, 8);
+    decodeText(titleArray, data.title, setDisplayTitle, 8);
+    decodeText(dateArray, data.date, setDisplayDate, 8);
+    decodeText(descArray, data.explanation, setDisplayDesc, 12);
+    if (copyRightArray.length) decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 8);
 
     setDecoding(false);
-  }, [open, data]);
+  }, [open, data]); // ✅ Only depend on `open` and `data`
 
   return (
     <div className={`info-panel ${open ? "open" : "hidden"}`}>
-      <button className="close-panel" onClick={onClose}>×</button>
-
+      <button className="close-panel" onClick={onClose}>
+        ×
+      </button>
       <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
       <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
       {displayCopyRight && (

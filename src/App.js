@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
-import LoadingComponent from "./components/LoadingComponent";
 import { API_ROUTE, getCurrentDate, updateUrlQueryParam, isValidDate } from "./Utils";
 import "./App.css";
 
@@ -23,13 +22,13 @@ function App() {
     if (!date) return;
     setLoading(true);
     fetch(`${API_ROUTE}?date=${date}`)
-      .then(res => res.json())
-      .then(d => setData(d))
+      .then((res) => res.json())
+      .then((d) => setData(d))
       .finally(() => setLoading(false));
   }, [date]);
 
   // Date navigation handlers
-  const handleDateChange = inc => {
+  const handleDateChange = (inc) => {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + inc);
     const formatted = newDate.toISOString().split("T")[0];
@@ -37,15 +36,14 @@ function App() {
     setDate(formatted);
   };
 
-  const handleCalendarChange = newDate => {
+  const handleCalendarChange = (newDate) => {
     const formatted = new Date(newDate).toISOString().split("T")[0];
     updateUrlQueryParam("date", formatted);
     setDate(formatted);
   };
 
-  if (loading || !data) {
-    return <LoadingComponent realData={{ title: "Loading...", date, explanation: "Fetching data..." }} />;
-  }
+  // Show nothing if loading
+  if (loading || !data) return null;
 
   return (
     <>
