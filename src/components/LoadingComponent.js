@@ -28,7 +28,7 @@ const LoadingComponent = ({ realData }) => {
         setDescription(prev => prev.substring(0, descIndex) + realData.explanation[descIndex] + prev.substring(descIndex + 1));
         descIndex++;
       }
-    }, 50);
+    }, 250);
 
     return () => clearInterval(interval);
   }, [realData]);

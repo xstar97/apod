@@ -22,6 +22,14 @@
   border: 1px solid #ccc;
   padding: 10px;
   max-width: 512px;
+  height: 200px; /* optional fixed height for consistency */
+  overflow-y: auto; /* scroll if text is long */
+  background-color: #111;
+  color: #39ff14;
+  font-family: monospace;
+  overflow-wrap: break-word; /* wrap long words */
+  word-break: break-word; /* force wrap */
+  white-space: pre-wrap; /* preserve spacing for alien effect */
 }
 
 .alien-glitch {
