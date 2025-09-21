@@ -5,6 +5,7 @@ const InfoPanel = ({ data, open }) => {
   const [displayTitle, setDisplayTitle] = useState("");
   const [displayDate, setDisplayDate] = useState("");
   const [displayDesc, setDisplayDesc] = useState("");
+  const [displayCopyRight, setDisplayCopyRight] = useState("");
   const [decoding, setDecoding] = useState(false);
 
   useEffect(() => {
@@ -15,47 +16,61 @@ const InfoPanel = ({ data, open }) => {
     const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
     const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
 
-    // Initialize each string with random alien chars
-    let titleArray = data.title.split("").map(() => getRandomChar());
-    let dateArray = data.date.split("").map(() => getRandomChar());
-    let descArray = data.explanation.split("").map(() => getRandomChar());
+    // Initialize arrays with random alien chars
+    const initArray = (text) => text.split("").map(() => getRandomChar());
+
+    let titleArray = initArray(data.title);
+    let dateArray = initArray(data.date);
+    let descArray = initArray(data.explanation);
+    let copyArray = data.copyright ? initArray(data.copyright) : [];
 
     setDisplayTitle(titleArray.join(""));
     setDisplayDate(dateArray.join(""));
     setDisplayDesc(descArray.join(""));
+    setDisplayCopyRight(copyArray.join(""));
 
-    let ti = 0, di = 0, desci = 0;
+    // Generic decode function
+    const decodeText = (sourceArray, targetString, step) => {
+      for (let i = 0; i < step && i < targetString.length; i++) {
+        sourceArray[i] = targetString[i];
+      }
+      return sourceArray;
+    };
 
-    // Adjust speed: more characters per interval for longer text
+    let ti = 0, di = 0, desci = 0, ci = 0;
+
     const interval = setInterval(() => {
       let done = true;
 
-      // For title
-      const titleStep = Math.max(1, Math.floor(data.title.length / 8)); // 8 steps total
-      for (let i = 0; i < titleStep && ti < data.title.length; i++, ti++) {
-        titleArray[ti] = data.title[ti];
-      }
+      // Update each field dynamically
+      const titleStep = Math.max(1, Math.floor(data.title.length / 8));
+      titleArray = decodeText(titleArray, data.title, titleStep + ti);
+      ti += titleStep;
       if (ti < data.title.length) done = false;
       setDisplayTitle([...titleArray].join(""));
 
-      // For date
       const dateStep = Math.max(1, Math.floor(data.date.length / 8));
-      for (let i = 0; i < dateStep && di < data.date.length; i++, di++) {
-        dateArray[di] = data.date[di];
-      }
+      dateArray = decodeText(dateArray, data.date, dateStep + di);
+      di += dateStep;
       if (di < data.date.length) done = false;
       setDisplayDate([...dateArray].join(""));
 
-      // For description
-      const descStep = Math.max(1, Math.floor(data.explanation.length / 15)); // faster for long text
-      for (let i = 0; i < descStep && desci < data.explanation.length; i++, desci++) {
-        descArray[desci] = data.explanation[desci];
-      }
+      const descStep = Math.max(1, Math.floor(data.explanation.length / 15));
+      descArray = decodeText(descArray, data.explanation, descStep + desci);
+      desci += descStep;
       if (desci < data.explanation.length) done = false;
       setDisplayDesc([...descArray].join(""));
 
+      if (copyArray.length > 0) {
+        const copyStep = Math.max(1, Math.floor(data.copyright.length / 8));
+        copyArray = decodeText(copyArray, data.copyright, copyStep + ci);
+        ci += copyStep;
+        if (ci < data.copyright.length) done = false;
+        setDisplayCopyRight([...copyArray].join(""));
+      }
+
       if (done) setDecoding(false);
-    }, 50); // small interval for smooth animation
+    }, 50);
 
     return () => clearInterval(interval);
   }, [open, data]);
@@ -65,9 +80,7 @@ const InfoPanel = ({ data, open }) => {
       <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
       <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
       {data.copyright && (
-        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
-          Copyright: {data.copyright}
-        </p>
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayCopyRight}</p>
       )}
       <div className="description-container">
         <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDesc}</p>
