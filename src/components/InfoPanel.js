@@ -10,25 +10,54 @@ const InfoPanel = ({ data, open }) => {
   useEffect(() => {
     if (!open) return;
 
-    const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-    const getRandomChar = (len) =>
-      Array.from({ length: len }, () => alienChars[Math.floor(Math.random() * alienChars.length)]).join("");
-
-    // Show alien text first
-    setDisplayTitle(getRandomChar(data.title.length));
-    setDisplayDate(getRandomChar(data.date.length));
-    setDisplayDesc(getRandomChar(data.explanation.length));
     setDecoding(true);
 
-    // After 2 seconds, show real text
-    const timeout = setTimeout(() => {
-      setDisplayTitle(data.title);
-      setDisplayDate(data.date);
-      setDisplayDesc(data.explanation);
-      setDecoding(false);
-    }, 2000);
+    const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+    const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
 
-    return () => clearTimeout(timeout);
+    // Initialize each string with random alien chars
+    let titleArray = data.title.split("").map(() => getRandomChar());
+    let dateArray = data.date.split("").map(() => getRandomChar());
+    let descArray = data.explanation.split("").map(() => getRandomChar());
+
+    setDisplayTitle(titleArray.join(""));
+    setDisplayDate(dateArray.join(""));
+    setDisplayDesc(descArray.join(""));
+
+    let ti = 0, di = 0, desci = 0;
+
+    // Adjust speed: more characters per interval for longer text
+    const interval = setInterval(() => {
+      let done = true;
+
+      // For title
+      const titleStep = Math.max(1, Math.floor(data.title.length / 8)); // 8 steps total
+      for (let i = 0; i < titleStep && ti < data.title.length; i++, ti++) {
+        titleArray[ti] = data.title[ti];
+      }
+      if (ti < data.title.length) done = false;
+      setDisplayTitle([...titleArray].join(""));
+
+      // For date
+      const dateStep = Math.max(1, Math.floor(data.date.length / 8));
+      for (let i = 0; i < dateStep && di < data.date.length; i++, di++) {
+        dateArray[di] = data.date[di];
+      }
+      if (di < data.date.length) done = false;
+      setDisplayDate([...dateArray].join(""));
+
+      // For description
+      const descStep = Math.max(1, Math.floor(data.explanation.length / 15)); // faster for long text
+      for (let i = 0; i < descStep && desci < data.explanation.length; i++, desci++) {
+        descArray[desci] = data.explanation[desci];
+      }
+      if (desci < data.explanation.length) done = false;
+      setDisplayDesc([...descArray].join(""));
+
+      if (done) setDecoding(false);
+    }, 50); // small interval for smooth animation
+
+    return () => clearInterval(interval);
   }, [open, data]);
 
   return (

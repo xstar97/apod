@@ -1,20 +1,32 @@
 .navigation-bar {
   position: fixed;
-  bottom: 0;
-  width: 100%;
+  bottom: 20px;               /* 20px above bottom edge */
+  left: 50%;
+  transform: translateX(-50%); /* center horizontally */
   display: flex;
-  justify-content: center; /* center the whole bar */
-  gap: 20px;               /* space between buttons */
-  padding: 10px 0;
-  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  gap: 20px;                  /* spacing between buttons */
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  border-radius: 12px;
   z-index: 10;
 }
 
 .navigation-bar button,
 .navigation-bar input[type="date"] {
-  cursor: pointer;
   padding: 8px 16px;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
+  cursor: pointer;
+  background-color: #39ff14;
+  color: black;
+  font-weight: bold;
+}
+
+.navigation-bar input[type="date"] {
+  background-color: black;
+  color: #39ff14;
+  font-family: monospace;
 }
