@@ -30,6 +30,10 @@ function App() {
     link.href = url;
   };
 
+  // Determine media type
+  const isImage = data?.media_type === "image";
+  const isVideo = data?.media_type === "video";
+
   // Fetch APOD data
   useEffect(() => {
     if (!date) return;
@@ -46,9 +50,9 @@ function App() {
 
         // Dynamic favicon
         if (d.media_type === "image") {
-          updateFavicon(d.url); // Use APOD image as favicon
+          updateFavicon(d.url);
         } else {
-          updateFavicon("/favicon-video.png"); // default icon for videos
+          updateFavicon("/favicon-video.png");
         }
       })
       .finally(() => setLoading(false));
@@ -70,12 +74,24 @@ function App() {
 
   if (loading || !data) return null;
 
+  // Generate animated alien skeleton string
+  const getAlienText = (length = 20) => {
+    const chars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+  };
+
   return (
     <>
       <div className="media-container">
-        {!mediaLoaded && <div className="alien-skeleton">⧖⚲ ⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪</div>}
+        {/* Alien skeleton overlay */}
+        {!mediaLoaded && (
+          <div className={`alien-skeleton ${isVideo ? "video-skeleton" : ""}`}>
+            {getAlienText(40)}
+          </div>
+        )}
 
-        {data.media_type === "video" ? (
+        {/* Media display */}
+        {isVideo && (
           <iframe
             src={data.url}
             title={data.title}
@@ -84,7 +100,8 @@ function App() {
             className={infoOpen ? "obscured" : ""}
             onLoad={() => setMediaLoaded(true)}
           />
-        ) : (
+        )}
+        {isImage && (
           <img
             src={data.hdurl}
             alt={data.title}
@@ -93,15 +110,19 @@ function App() {
           />
         )}
 
+        {/* Obscure overlay when info panel open */}
         {infoOpen && <div className="media-overlay"></div>}
       </div>
 
+      {/* Info FAB button */}
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
 
+      {/* Slide-out info panel */}
       <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
+      {/* Bottom navigation */}
       <NavigationBar
         currentDate={date}
         onDateChange={handleDateChange}
