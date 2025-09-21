@@ -3,11 +3,13 @@ import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
 import { API_ROUTE, getCurrentDate, updateUrlQueryParam, isValidDate } from "./Utils";
 import "./App.css";
+import "./LoadingSkeleton.css"; // New CSS for alien skeleton
 
 function App() {
   const [date, setDate] = useState(getCurrentDate());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mediaLoaded, setMediaLoaded] = useState(false); // track if media has finished loading
   const [infoOpen, setInfoOpen] = useState(false);
 
   // Initialize date from URL query
@@ -21,13 +23,13 @@ function App() {
   useEffect(() => {
     if (!date) return;
     setLoading(true);
+    setMediaLoaded(false);
     fetch(`${API_ROUTE}?date=${date}`)
       .then((res) => res.json())
       .then((d) => setData(d))
       .finally(() => setLoading(false));
   }, [date]);
 
-  // Date navigation handlers
   const handleDateChange = (inc) => {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + inc);
@@ -42,13 +44,14 @@ function App() {
     setDate(formatted);
   };
 
-  // Show nothing if loading
   if (loading || !data) return null;
 
   return (
     <>
       {/* Fullscreen media */}
       <div className="media-container">
+        {!mediaLoaded && <div className="alien-skeleton">⧖⚲ ⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪</div>}
+
         {data.media_type === "video" ? (
           <iframe
             src={data.url}
@@ -56,28 +59,26 @@ function App() {
             frameBorder="0"
             allowFullScreen
             className={infoOpen ? "obscured" : ""}
+            onLoad={() => setMediaLoaded(true)}
           ></iframe>
         ) : (
           <img
             src={data.hdurl}
             alt={data.title}
             className={infoOpen ? "obscured" : ""}
+            onLoad={() => setMediaLoaded(true)}
           />
         )}
 
-        {/* Overlay for obscuring media */}
         {infoOpen && <div className="media-overlay"></div>}
       </div>
 
-      {/* Info FAB button */}
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
 
-      {/* Slide-out info panel */}
       <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
-      {/* Bottom navigation */}
       <NavigationBar
         currentDate={date}
         onDateChange={handleDateChange}
