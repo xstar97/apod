@@ -9,9 +9,9 @@
   font-family: monospace;
   padding: 20px;
   overflow-y: auto;
-  transform: translateX(100%); /* hidden by default */
+  transform: translateX(100%);
   transition: transform 0.4s ease;
-  z-index: 15;
+  z-index: 10; /* above overlay */
 }
 
 .info-panel.open {
@@ -27,3 +27,4 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+

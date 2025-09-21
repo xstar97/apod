@@ -29,3 +29,32 @@ html, body {
   border: none;
   cursor: pointer;
 }
+
+.media-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.media-container img,
+.media-container iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.media-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6); /* darken effect */
+  z-index: 5;
+  pointer-events: none; /* allow panel interaction */
+}
+
+.obscured {
+  filter: blur(2px) brightness(0.7);
+}

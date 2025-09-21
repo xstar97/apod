@@ -50,17 +50,25 @@ function App() {
   return (
     <>
       {/* Fullscreen media */}
-      <div className="media-fullscreen">
+      <div className="media-container">
         {data.media_type === "video" ? (
           <iframe
             src={data.url}
             title={data.title}
             frameBorder="0"
             allowFullScreen
+            className={infoOpen ? "obscured" : ""}
           ></iframe>
         ) : (
-          <img src={data.hdurl} alt={data.title} />
+          <img
+            src={data.hdurl}
+            alt={data.title}
+            className={infoOpen ? "obscured" : ""}
+          />
         )}
+
+        {/* Overlay for obscuring media */}
+        {infoOpen && <div className="media-overlay"></div>}
       </div>
 
       {/* Info FAB button */}
