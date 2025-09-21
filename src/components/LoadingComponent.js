@@ -11,9 +11,7 @@ const LoadingComponent = ({ realData }) => {
   const [description, setDescription] = useState(randomString(realData.explanation.length));
 
   useEffect(() => {
-    let titleIndex = 0;
-    let dateIndex = 0;
-    let descIndex = 0;
+    let titleIndex = 0, dateIndex = 0, descIndex = 0;
 
     const interval = setInterval(() => {
       if (titleIndex < realData.title.length) {
@@ -28,24 +26,22 @@ const LoadingComponent = ({ realData }) => {
         setDescription(prev => prev.substring(0, descIndex) + realData.explanation[descIndex] + prev.substring(descIndex + 1));
         descIndex++;
       }
-    }, 250);
+    }, 150);
 
     return () => clearInterval(interval);
   }, [realData]);
 
   return (
-    <>
+    <div className="loading-fullscreen">
       <div className="media-skeleton glitch-shimmer"></div>
-      <div className="info-skeleton">
-        <h1 className="alien-glitch">{title}</h1>
-        <p className="alien-glitch">{date}</p>
-        <p className="alien-glitch">⧖⚲ ⟊⟒⟟⌖⋉</p>
+      <div className="info-alien" style={{ display: 'none' }}>
+        <h1>{title}</h1>
+        <p>{date}</p>
         <div className="description-skeleton">
-          <p className="alien-glitch">{description}</p>
+          <p>{description}</p>
         </div>
-        <div className="nav-skeleton"></div>
       </div>
-    </>
+    </div>
   );
 };
 

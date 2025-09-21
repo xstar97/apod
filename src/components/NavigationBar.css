@@ -1,0 +1,20 @@
+.navigation-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10;
+}
+
+.navigation-bar button,
+.navigation-bar input[type="date"] {
+  cursor: pointer;
+  padding: 8px 16px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: none;
+}

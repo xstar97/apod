@@ -1,70 +1,81 @@
 import React, { useState, useEffect } from "react";
-import ApodComponent from "./components/ApodComponent";
+import InfoPanel from "./components/InfoPanel";
+import NavigationBar from "./components/NavigationBar";
 import LoadingComponent from "./components/LoadingComponent";
+import { API_ROUTE, getCurrentDate, updateUrlQueryParam, isValidDate } from "./Utils";
 import "./App.css";
-import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from "./Utils";
 
 function App() {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(getCurrentDate());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(false);
 
+  // Initialize date from URL query
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const queryDate = params.get("date");
-
     if (queryDate && isValidDate(queryDate)) setDate(queryDate);
-    else {
-      const today = getCurrentDate();
-      setDate(today);
-      updateUrlQueryParam("date", today);
-    }
   }, []);
 
+  // Fetch APOD data
   useEffect(() => {
     if (!date) return;
-
     setLoading(true);
     fetch(`${API_ROUTE}?date=${date}`)
       .then(res => res.json())
-      .then(d => {
-        setData(d);
-        document.title = d.title || TITLE;
-        const faviconUrl = d.hdurl || d.url;
-        if (faviconUrl) setFavicon(faviconUrl);
-        setMetaTags(d);
-      })
-      .catch(console.error)
+      .then(d => setData(d))
       .finally(() => setLoading(false));
   }, [date]);
 
-  const handleDateChange = (increment) => {
+  // Date navigation handlers
+  const handleDateChange = inc => {
     const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + increment);
+    newDate.setDate(newDate.getDate() + inc);
     const formatted = newDate.toISOString().split("T")[0];
     updateUrlQueryParam("date", formatted);
     setDate(formatted);
   };
 
-  const handleCalendarChange = (newDate) => {
+  const handleCalendarChange = newDate => {
     const formatted = new Date(newDate).toISOString().split("T")[0];
     updateUrlQueryParam("date", formatted);
     setDate(formatted);
   };
 
+  if (loading || !data) {
+    return <LoadingComponent realData={{ title: "Loading...", date, explanation: "Fetching data..." }} />;
+  }
+
   return (
-    <div className="apod-main">
-      {loading ? (
-        <LoadingComponent realData={data || { title: "Loading...", date: getCurrentDate(), explanation: "Fetching data..." }} />
-      ) : (
-        <ApodComponent
-          data={data}
-          date={date}
-          onDateChange={handleDateChange}
-          onCalendarChange={handleCalendarChange}
-        />
-      )}
-    </div>
+    <>
+      {/* Fullscreen media */}
+      <div className="media-fullscreen">
+        {data.media_type === "video" ? (
+          <iframe
+            src={data.url}
+            title={data.title}
+            frameBorder="0"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <img src={data.hdurl} alt={data.title} />
+        )}
+      </div>
+
+      {/* Info FAB button */}
+      <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>i</button>
+
+      {/* Slide-out info panel */}
+      <InfoPanel data={data} open={infoOpen} />
+
+      {/* Bottom navigation */}
+      <NavigationBar
+        currentDate={date}
+        onDateChange={handleDateChange}
+        onCalendarChange={handleCalendarChange}
+      />
+    </>
   );
 }
 

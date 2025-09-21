@@ -1,0 +1,51 @@
+.info-panel {
+  position: fixed;
+  top: 0;
+  right: -40%;
+  width: 40%;
+  height: 100vh;
+  background: rgba(0,0,0,0.85);
+  color: #39ff14;
+  overflow-y: auto;
+  padding: 20px;
+  transition: right 0.3s ease;
+  z-index: 5;
+}
+
+.info-panel.open {
+  right: 0;
+}
+
+.description-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Alien text shimmer effect */
+.alien-glitch {
+  color: #39ff14;
+  position: relative;
+  display: inline-block;
+}
+
+.alien-glitch::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #39ff14;
+  opacity: 0;
+}
+
+.alien-glitch.active {
+  animation: glitch-flicker 0.1s infinite;
+}
+
+@keyframes glitch-flicker {
+  0% { opacity: 1; transform: translate(0, 0); }
+  20% { opacity: 0.8; transform: translate(-1px, 1px); }
+  40% { opacity: 1; transform: translate(1px, -1px); }
+  60% { opacity: 0.9; transform: translate(-1px, -1px); }
+  80% { opacity: 1; transform: translate(1px, 1px); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
