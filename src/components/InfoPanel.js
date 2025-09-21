@@ -16,56 +16,35 @@ const InfoPanel = ({ data, open, onClose }) => {
 
   useEffect(() => {
     if (!open) return;
+
     setDecoding(true);
 
-    let titleArray = displayTitle.split("");
-    let dateArray = displayDate.split("");
-    let descArray = displayDesc.split("");
-    let copyArray = displayCopyRight.split("");
+    // Helper function to decode each text
+    const decodeText = (alienText, realText, setTextFn, steps) => {
+      let chars = alienText.split("");
+      let index = 0;
 
-    let ti = 0, di = 0, desci = 0, ci = 0;
+      const interval = setInterval(() => {
+        let done = true;
+        const step = Math.max(1, Math.floor(realText.length / steps));
 
-    const decodeText = (sourceArray, targetString, step) => {
-      for (let i = 0; i < step && i < targetString.length; i++) {
-        sourceArray[i] = targetString[i];
-      }
-      return sourceArray;
+        for (let i = 0; i < step && index < realText.length; i++, index++) {
+          chars[index] = realText[index];
+        }
+
+        setTextFn(chars.join(""));
+
+        if (index < realText.length) done = false;
+        if (done) clearInterval(interval);
+      }, 30); // Small interval for smooth transition
     };
 
-    const interval = setInterval(() => {
-      let done = true;
+    decodeText(displayTitle, data.title, setDisplayTitle, 8);
+    decodeText(displayDate, data.date, setDisplayDate, 8);
+    decodeText(displayDesc, data.explanation, setDisplayDesc, 12);
+    if (displayCopyRight) decodeText(displayCopyRight, data.copyright, setDisplayCopyRight, 8);
 
-      const titleStep = Math.max(1, Math.floor(data.title.length / 8));
-      titleArray = decodeText(titleArray, data.title, ti + titleStep);
-      ti += titleStep;
-      if (ti < data.title.length) done = false;
-      setDisplayTitle([...titleArray].join(""));
-
-      const dateStep = Math.max(1, Math.floor(data.date.length / 8));
-      dateArray = decodeText(dateArray, data.date, di + dateStep);
-      di += dateStep;
-      if (di < data.date.length) done = false;
-      setDisplayDate([...dateArray].join(""));
-
-      const descStep = Math.max(1, Math.floor(data.explanation.length / 15));
-      descArray = decodeText(descArray, data.explanation, desci + descStep);
-      desci += descStep;
-      if (desci < data.explanation.length) done = false;
-      setDisplayDesc([...descArray].join(""));
-
-      if (copyArray.length > 0) {
-        const copyStep = Math.max(1, Math.floor(data.copyright.length / 8));
-        copyArray = decodeText(copyArray, data.copyright, ci + copyStep);
-        ci += copyStep;
-        if (ci < data.copyright.length) done = false;
-        setDisplayCopyRight([...copyArray].join(""));
-      }
-
-      if (done) setDecoding(false);
-    }, 40);
-
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setDecoding(false);
   }, [open, data]);
 
   return (
@@ -74,7 +53,7 @@ const InfoPanel = ({ data, open, onClose }) => {
 
       <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
       <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
-      {data.copyright && (
+      {displayCopyRight && (
         <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayCopyRight}</p>
       )}
       <div className="description-container">
