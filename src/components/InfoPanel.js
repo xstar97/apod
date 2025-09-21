@@ -6,23 +6,50 @@ const InfoPanel = ({ data, open }) => {
   const [displayDate, setDisplayDate] = useState("");
   const [displayDesc, setDisplayDesc] = useState("");
 
+  const [decoding, setDecoding] = useState(false); // track if decoding is happening
+
   useEffect(() => {
     if (!open) return;
 
-    // Start alien decode animation
-    let ti = 0, di = 0, desci = 0;
+    setDecoding(true);
+
     const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+    const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
+
+    // Initialize each string with random alien chars
+    let titleArray = data.title.split("").map(() => getRandomChar());
+    let dateArray = data.date.split("").map(() => getRandomChar());
+    let descArray = data.explanation.split("").map(() => getRandomChar());
+
+    setDisplayTitle(titleArray.join(""));
+    setDisplayDate(dateArray.join(""));
+    setDisplayDesc(descArray.join(""));
+
+    let ti = 0, di = 0, desci = 0;
 
     const interval = setInterval(() => {
+      let done = true;
+
       if (ti < data.title.length) {
-        setDisplayTitle(prev => prev.substring(0, ti) + data.title[ti++] + prev.substring(ti));
+        titleArray[ti] = data.title[ti];
+        setDisplayTitle([...titleArray].join(""));
+        ti++;
+        done = false;
       }
       if (di < data.date.length) {
-        setDisplayDate(prev => prev.substring(0, di) + data.date[di++] + prev.substring(di));
+        dateArray[di] = data.date[di];
+        setDisplayDate([...dateArray].join(""));
+        di++;
+        done = false;
       }
       if (desci < data.explanation.length) {
-        setDisplayDesc(prev => prev.substring(0, desci) + data.explanation[desci++] + prev.substring(desci));
+        descArray[desci] = data.explanation[desci];
+        setDisplayDesc([...descArray].join(""));
+        desci++;
+        done = false;
       }
+
+      if (done) setDecoding(false); // stop shimmer once done
     }, 50);
 
     return () => clearInterval(interval);
@@ -30,11 +57,15 @@ const InfoPanel = ({ data, open }) => {
 
   return (
     <div className={`info-panel ${open ? "open" : ""}`}>
-      <h1 className={`alien-glitch ${open ? "active" : ""}`}>{displayTitle}</h1>
-      <p className={`alien-glitch ${open ? "active" : ""}`}>{displayDate}</p>
-      {data.copyright && <p className={`alien-glitch ${open ? "active" : ""}`}>Copyright: {data.copyright}</p>}
+      <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
+      <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
+      {data.copyright && (
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+          Copyright: {data.copyright}
+        </p>
+      )}
       <div className="description-container">
-        <p className={`alien-glitch ${open ? "active" : ""}`}>{displayDesc}</p>
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDesc}</p>
       </div>
     </div>
   );

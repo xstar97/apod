@@ -21,31 +21,23 @@
   overflow-y: auto;
 }
 
-/* Alien text shimmer effect */
+/* Alien text shimmer/flicker */
 .alien-glitch {
   color: #39ff14;
   position: relative;
   display: inline-block;
-}
-
-.alien-glitch::before {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #39ff14;
-  opacity: 0;
+  transition: color 0.2s;
 }
 
 .alien-glitch.active {
-  animation: glitch-flicker 0.1s infinite;
+  animation: neon-flicker 0.1s infinite;
 }
 
-@keyframes glitch-flicker {
-  0% { opacity: 1; transform: translate(0, 0); }
-  20% { opacity: 0.8; transform: translate(-1px, 1px); }
-  40% { opacity: 1; transform: translate(1px, -1px); }
-  60% { opacity: 0.9; transform: translate(-1px, -1px); }
-  80% { opacity: 1; transform: translate(1px, 1px); }
-  100% { opacity: 1; transform: translate(0, 0); }
+@keyframes neon-flicker {
+  0%   { text-shadow: 0 0 2px #39ff14, 0 0 5px #39ff14; }
+  20%  { text-shadow: 0 0 4px #39ff14, 0 0 8px #39ff14; }
+  40%  { text-shadow: 0 0 2px #39ff14, 0 0 5px #39ff14; }
+  60%  { text-shadow: 0 0 6px #39ff14, 0 0 12px #39ff14; }
+  80%  { text-shadow: 0 0 2px #39ff14, 0 0 5px #39ff14; }
+  100% { text-shadow: 0 0 3px #39ff14, 0 0 6px #39ff14; }
 }
