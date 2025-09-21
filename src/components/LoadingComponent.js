@@ -26,7 +26,7 @@ const LoadingComponent = () => {
       setTitle(randomAlienText(defaultData.title.length));
       setDate(randomAlienText(defaultData.date.length));
       setDescription(randomAlienText(defaultData.description.length));
-    }, 800);
+    }, 250);
     return () => clearInterval(interval);
   }, []);
 
