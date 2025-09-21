@@ -1,23 +1,19 @@
 import React from "react";
-import { getCurrentDate } from "../Utils";
 import "./NavigationBar.css";
 
 const NavigationBar = ({ currentDate, onDateChange, onCalendarChange }) => {
-  const today = getCurrentDate();
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="navigation-bar">
-      <button onClick={() => onDateChange(-1)}>PREV</button>
-
+      <button className="nav-button" onClick={() => onDateChange(-1)}>Prev</button>
       <input
         type="date"
         value={currentDate}
         onChange={(e) => onCalendarChange(e.target.value)}
-        max={today} // prevent selecting future dates
       />
-
       {currentDate !== today && (
-        <button onClick={() => onDateChange(1)}>NEXT</button>
+        <button className="nav-button" onClick={() => onDateChange(1)}>Next</button>
       )}
     </div>
   );

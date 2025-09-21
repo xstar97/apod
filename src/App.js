@@ -72,10 +72,12 @@ function App() {
       </div>
 
       {/* Info FAB button */}
-      <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>i</button>
+      <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
+        {infoOpen ? "×" : "i"}
+      </button>
 
       {/* Slide-out info panel */}
-      <InfoPanel data={data} open={infoOpen} />
+      <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
       {/* Bottom navigation */}
       <NavigationBar

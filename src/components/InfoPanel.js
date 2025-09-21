@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./InfoPanel.css";
 
-const InfoPanel = ({ data, open }) => {
+const InfoPanel = ({ data, open, onClose }) => {
   const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
   const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
-
   const initAlienText = (text) => text.split("").map(() => getRandomChar()).join("");
 
   const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title));
@@ -13,15 +12,12 @@ const InfoPanel = ({ data, open }) => {
   const [displayCopyRight, setDisplayCopyRight] = useState(
     data.copyright ? initAlienText(data.copyright) : ""
   );
-
   const [decoding, setDecoding] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-
     setDecoding(true);
 
-    // Move arrays inside effect to avoid lint warning
     let titleArray = displayTitle.split("");
     let dateArray = displayDate.split("");
     let descArray = displayDesc.split("");
@@ -70,10 +66,12 @@ const InfoPanel = ({ data, open }) => {
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, data]); // only re-run when panel opens or data changes
+  }, [open, data]);
 
   return (
     <div className={`info-panel ${open ? "open" : "hidden"}`}>
+      <button className="close-panel" onClick={onClose}>×</button>
+
       <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
       <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
       {data.copyright && (
