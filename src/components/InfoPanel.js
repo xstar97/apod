@@ -5,22 +5,23 @@ const InfoPanel = ({ data, open }) => {
   const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
   const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
 
-  // Helper to create alien text array
-  const initAlienText = (text) => text.split("").map(() => getRandomChar());
+  const initAlienText = (text) => text.split("").map(() => getRandomChar()).join("");
 
-  const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title).join(""));
-  const [displayDate, setDisplayDate] = useState(initAlienText(data.date).join(""));
-  const [displayDesc, setDisplayDesc] = useState(initAlienText(data.explanation).join(""));
+  const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title));
+  const [displayDate, setDisplayDate] = useState(initAlienText(data.date));
+  const [displayDesc, setDisplayDesc] = useState(initAlienText(data.explanation));
   const [displayCopyRight, setDisplayCopyRight] = useState(
-    data.copyright ? initAlienText(data.copyright).join("") : ""
+    data.copyright ? initAlienText(data.copyright) : ""
   );
 
   const [decoding, setDecoding] = useState(false);
 
   useEffect(() => {
-    if (!open) return; // Only decode when panel is opened
+    if (!open) return;
+
     setDecoding(true);
 
+    // Move arrays inside effect to avoid lint warning
     let titleArray = displayTitle.split("");
     let dateArray = displayDate.split("");
     let descArray = displayDesc.split("");
@@ -65,10 +66,11 @@ const InfoPanel = ({ data, open }) => {
       }
 
       if (done) setDecoding(false);
-    }, 40); // faster decoding
+    }, 40);
 
     return () => clearInterval(interval);
-  }, [open, data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, data]); // only re-run when panel opens or data changes
 
   return (
     <div className={`info-panel ${open ? "open" : "hidden"}`}>
