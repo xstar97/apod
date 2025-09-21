@@ -12,7 +12,6 @@ const InfoPanel = ({ data, open }) => {
     // Start alien decode animation
     let ti = 0, di = 0, desci = 0;
     const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-    const randomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
 
     const interval = setInterval(() => {
       if (ti < data.title.length) {
