@@ -5,54 +5,30 @@ const InfoPanel = ({ data, open }) => {
   const [displayTitle, setDisplayTitle] = useState("");
   const [displayDate, setDisplayDate] = useState("");
   const [displayDesc, setDisplayDesc] = useState("");
-
-  const [decoding, setDecoding] = useState(false); // track if decoding is happening
+  const [decoding, setDecoding] = useState(false);
 
   useEffect(() => {
     if (!open) return;
 
+    const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+    const getRandomChar = (len) =>
+      Array.from({ length: len }, () => alienChars[Math.floor(Math.random() * alienChars.length)]).join("");
+
+    // Show alien text first
+    setDisplayTitle(getRandomChar(data.title.length));
+    setDisplayDate(getRandomChar(data.date.length));
+    setDisplayDesc(getRandomChar(data.explanation.length));
     setDecoding(true);
 
-    const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-    const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
+    // After 2 seconds, show real text
+    const timeout = setTimeout(() => {
+      setDisplayTitle(data.title);
+      setDisplayDate(data.date);
+      setDisplayDesc(data.explanation);
+      setDecoding(false);
+    }, 2000);
 
-    // Initialize each string with random alien chars
-    let titleArray = data.title.split("").map(() => getRandomChar());
-    let dateArray = data.date.split("").map(() => getRandomChar());
-    let descArray = data.explanation.split("").map(() => getRandomChar());
-
-    setDisplayTitle(titleArray.join(""));
-    setDisplayDate(dateArray.join(""));
-    setDisplayDesc(descArray.join(""));
-
-    let ti = 0, di = 0, desci = 0;
-
-    const interval = setInterval(() => {
-      let done = true;
-
-      if (ti < data.title.length) {
-        titleArray[ti] = data.title[ti];
-        setDisplayTitle([...titleArray].join(""));
-        ti++;
-        done = false;
-      }
-      if (di < data.date.length) {
-        dateArray[di] = data.date[di];
-        setDisplayDate([...dateArray].join(""));
-        di++;
-        done = false;
-      }
-      if (desci < data.explanation.length) {
-        descArray[desci] = data.explanation[desci];
-        setDisplayDesc([...descArray].join(""));
-        desci++;
-        done = false;
-      }
-
-      if (done) setDecoding(false); // stop shimmer once done
-    }, 50);
-
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeout);
   }, [open, data]);
 
   return (
