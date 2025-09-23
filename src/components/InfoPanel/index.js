@@ -3,7 +3,7 @@ import {
   initAlienText,
   getRandomChar,
   decodeText,
-} from "../utils/decoder";
+} from "./decoder";
 import "./index.css";
 
 const InfoPanel = ({ data, open, onClose }) => {

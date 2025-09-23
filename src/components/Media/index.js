@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   getValidMediaUrl,
   getAlienText
-} from "../utils/mediaUtils";
+} from "./mediaUtils";
 
 export default function Media({
   mediaType,
