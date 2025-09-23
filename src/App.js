@@ -2,20 +2,13 @@ import React, { useState, useEffect } from "react";
 import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
 import Media from "./components/Media";
-import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
-import "./App.css";
-import "./LoadingSkeleton.css";
+import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './utils/Utils.js';
+import { fetchAPODData, updateDocumentMeta, getInitialDateFromUrl, changeDate, formatCalendarDate } from './utils/appUtils.js';
+import "./css/App.css";
+import "./css/LoadingSkeleton.css";
 
 function App() {
-  // Determine initial date once
-  const getInitialDate = () => {
-    const params = new URLSearchParams(window.location.search);
-    const queryDate = params.get("date");
-    if (queryDate && isValidDate(queryDate)) return queryDate;
-    return getCurrentDate();
-  };
-
-  const [date, setDate] = useState(getInitialDate());
+  const [date, setDate] = useState(getInitialDateFromUrl(isValidDate, getCurrentDate));
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -23,26 +16,17 @@ function App() {
   // Fetch APOD data
   useEffect(() => {
     if (!date) return;
-
     setLoading(true);
 
     const fetchData = async () => {
-      try {
-        const res = await fetch(`${API_ROUTE}?date=${date}`);
-        const d = await res.json();
+      const d = await fetchAPODData(date);
+      if (d) {
         setData(d);
-
-        document.title = d.title || TITLE;
-        document.description = d.description || "";
-        const faviconUrl = d.hdurl || d.url;
-        if (faviconUrl) setFavicon(faviconUrl);
-        setMetaTags(d);
-      } catch (err) {
-        console.error("Failed to fetch APOD data:", err);
+        updateDocumentMeta(d, setFavicon, setMetaTags);
+      } else {
         setData(null);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -54,16 +38,12 @@ function App() {
   }, [date]);
 
   const handleDateChange = (inc) => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + inc);
-    const formatted = newDate.toISOString().split("T")[0];
-    updateUrlQueryParam("date", formatted);
+    const formatted = changeDate(date, inc, updateUrlQueryParam);
     setDate(formatted);
   };
 
   const handleCalendarChange = (newDate) => {
-    const formatted = new Date(newDate).toISOString().split("T")[0];
-    updateUrlQueryParam("date", formatted);
+    const formatted = formatCalendarDate(newDate, updateUrlQueryParam);
     setDate(formatted);
   };
 
@@ -80,6 +60,7 @@ function App() {
         retryCount={3}
         retryDelay={500}
       />
+
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
