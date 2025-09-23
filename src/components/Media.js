@@ -21,16 +21,19 @@ const validateVideo = async (url) => {
   }
 };
 
-// Retry helper: configurable attempts and delay
-const retryAsync = async (fn, maxAttempts = 3, delay = 500) => {
+// Retry helper with attempt callback
+const retryAsync = async (fn, maxAttempts = 3, delay = 500, onRetry) => {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const result = await fn();
-      if (result) return result;
+      if (result) return { success: true, attempt };
     } catch {}
-    if (attempt < maxAttempts) await new Promise((res) => setTimeout(res, delay));
+    if (attempt < maxAttempts) {
+      onRetry?.(attempt);
+      await new Promise((res) => setTimeout(res, delay));
+    }
   }
-  return false;
+  return { success: false };
 };
 
 export default function Media({
@@ -44,22 +47,25 @@ export default function Media({
 }) {
   const [mediaUrl, setMediaUrl] = useState(null);
   const [mediaLoaded, setMediaLoaded] = useState(false);
-
-  const isImage = mediaType === "image";
-  const isVideo = mediaType === "video";
+  const [retryAttempt, setRetryAttempt] = useState(0);
 
   useEffect(() => {
     setMediaUrl(null);
     setMediaLoaded(false);
+    setRetryAttempt(0);
 
     const validate = async () => {
       let validUrl = null;
+      const onRetry = (attempt) => setRetryAttempt(attempt);
 
-      if (isImage) {
-        if (await retryAsync(() => validateImage(hdurl), retryCount, retryDelay)) validUrl = hdurl;
-        else if (await retryAsync(() => validateImage(url), retryCount, retryDelay)) validUrl = url;
-      } else if (isVideo) {
-        if (await retryAsync(() => validateVideo(url), retryCount, retryDelay)) validUrl = url;
+      if (mediaType === "image") {
+        if ((await retryAsync(() => validateImage(hdurl), retryCount, retryDelay, onRetry)).success)
+          validUrl = hdurl;
+        else if ((await retryAsync(() => validateImage(url), retryCount, retryDelay, onRetry)).success)
+          validUrl = url;
+      } else if (mediaType === "video") {
+        if ((await retryAsync(() => validateVideo(url), retryCount, retryDelay, onRetry)).success)
+          validUrl = url;
       }
 
       setMediaUrl(validUrl);
@@ -77,12 +83,17 @@ export default function Media({
   return (
     <div className="media-container">
       {!mediaLoaded && (
-        <div className={`alien-skeleton ${isVideo ? "video-skeleton" : ""}`}>
+        <div className={`alien-skeleton ${mediaType === "video" ? "video-skeleton" : ""}`}>
           {getAlienText(40)}
+          {retryAttempt > 0 && (
+            <div className="retry-counter">
+              Retrying... attempt {retryAttempt} / {retryCount}
+            </div>
+          )}
         </div>
       )}
 
-      {isVideo && mediaUrl && (
+      {mediaType === "video" && mediaUrl && (
         <iframe
           src={mediaUrl}
           title={title}
@@ -93,7 +104,7 @@ export default function Media({
         />
       )}
 
-      {isImage && mediaUrl && (
+      {mediaType === "image" && mediaUrl && (
         <img
           src={mediaUrl}
           alt={title}

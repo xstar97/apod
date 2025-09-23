@@ -29,3 +29,16 @@
   75% { content: "✧✦✴⋆"; }
   100% { content: "✪✫✬✭"; }
 }
+
+.retry-counter {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #ffcc00;
+  text-align: center;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}
