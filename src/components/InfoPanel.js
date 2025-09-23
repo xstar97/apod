@@ -1,14 +1,36 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./InfoPanel.css";
 
+// --- Move these outside component to fix ESLint dependency warnings ---
+const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+
+const getRandomChar = () =>
+  alienChars[Math.floor(Math.random() * alienChars.length)];
+
+const initAlienText = (text) =>
+  text.split("").map(() => getRandomChar()).join("");
+
+// --- decodeText utility (already outside component) ---
+const decodeText = (arr, text, setFn, steps = 10, charDelay = 30) =>
+  new Promise((resolve) => {
+    let index = 0;
+    const interval = setInterval(() => {
+      const step = Math.max(1, Math.floor(text.length / steps));
+      let done = true;
+      for (let i = 0; i < step && index < text.length; i++, index++) {
+        arr[index] = text[index];
+      }
+      setFn([...arr].join(""));
+      if (index < text.length) done = false;
+      if (done) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, charDelay);
+  });
+
 const InfoPanel = ({ data, open, onClose }) => {
   const panelRef = useRef(null);
-  const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-
-  const getRandomChar = () =>
-    alienChars[Math.floor(Math.random() * alienChars.length)];
-  const initAlienText = (text) =>
-    text.split("").map(() => getRandomChar()).join("");
 
   const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title));
   const [displayDate, setDisplayDate] = useState(initAlienText(data.date));
@@ -17,25 +39,6 @@ const InfoPanel = ({ data, open, onClose }) => {
     data.copyright ? initAlienText(data.copyright) : ""
   );
   const [decoding, setDecoding] = useState(false);
-
-  // --- decodeText moved outside useEffect ---
-  const decodeText = (arr, text, setFn, steps = 10, charDelay = 30) =>
-    new Promise((resolve) => {
-      let index = 0;
-      const interval = setInterval(() => {
-        const step = Math.max(1, Math.floor(text.length / steps));
-        let done = true;
-        for (let i = 0; i < step && index < text.length; i++, index++) {
-          arr[index] = text[index];
-        }
-        setFn([...arr].join(""));
-        if (index < text.length) done = false;
-        if (done) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, charDelay);
-    });
 
   useEffect(() => {
     if (!open || !panelRef.current) return;
@@ -77,7 +80,7 @@ const InfoPanel = ({ data, open, onClose }) => {
 
     return () => {
       panelNode.removeEventListener("transitionend", handleTransitionEnd);
-      // Reset to alien text when closing, so it decodes again next open
+      // Reset text to alien glyphs on close
       setDisplayTitle(initAlienText(data.title));
       setDisplayDate(initAlienText(data.date));
       setDisplayDesc(initAlienText(data.explanation));
@@ -86,7 +89,7 @@ const InfoPanel = ({ data, open, onClose }) => {
       );
       setDecoding(false);
     };
-  }, [open, data]);
+  }, [open, data]); // ESLint-clean now
 
   return (
     <div

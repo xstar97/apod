@@ -1,3 +1,4 @@
+/* Panel container */
 .info-panel {
   position: fixed;
   top: 0;
@@ -26,11 +27,24 @@
   transform: translateX(100%);
 }
 
-/* Description scroll section */
+/* Close button */
+.close-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #39ff14;
+  cursor: pointer;
+  z-index: 11;
+}
+
+/* Description container */
 .description-container {
   position: relative;
   margin-top: 20px;
-  max-height: 40vh;   /* default for desktop */
+  max-height: 40vh;       /* Desktop default */
   overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -38,7 +52,7 @@
 }
 
 .description-content {
-  padding-right: 10px; /* space for scrollbar */
+  padding-right: 10px;   /* space for scrollbar */
 }
 
 /* Fade overlay for scroll hint */
@@ -52,7 +66,7 @@
   background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.95));
 }
 
-/* Mobile view: description takes 50–75% of viewport height */
+/* Mobile view: description flexible 50–75% of viewport height */
 @media (max-width: 768px) {
   .description-container {
     min-height: 25vh;
@@ -61,6 +75,7 @@
   }
 }
 
+/* Alien glitch effect */
 .alien-glitch.active {
   transition: all 0.05s linear;
 }
@@ -75,17 +90,4 @@
   to {
     opacity: 1;
   }
-}
-
-/* Close button */
-.close-panel {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  color: #39ff14;
-  cursor: pointer;
-  z-index: 11;
 }
