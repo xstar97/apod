@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null); // store validated image URL
 
   // Initialize date from URL query
   useEffect(() => {
@@ -30,6 +31,17 @@ function App() {
     link.href = url;
   };
 
+  // Validate if image URL exists
+  const validateImage = (url) => {
+    return new Promise((resolve) => {
+      if (!url) return resolve(false);
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  };
+
   // Determine media type
   const isImage = data?.media_type === "image";
   const isVideo = data?.media_type === "video";
@@ -42,7 +54,7 @@ function App() {
 
     fetch(`${API_ROUTE}?date=${date}`)
       .then((res) => res.json())
-      .then((d) => {
+      .then(async (d) => {
         setData(d);
 
         // Dynamic page title
@@ -53,6 +65,17 @@ function App() {
           updateFavicon(d.url);
         } else {
           updateFavicon("/favicon-video.png");
+        }
+
+        // Validate image URL fallback
+        if (d.media_type === "image") {
+          if (await validateImage(d.hdurl)) {
+            setImageUrl(d.hdurl);
+          } else if (await validateImage(d.url)) {
+            setImageUrl(d.url);
+          } else {
+            setImageUrl(null);
+          }
         }
       })
       .finally(() => setLoading(false));
@@ -101,9 +124,9 @@ function App() {
             onLoad={() => setMediaLoaded(true)}
           />
         )}
-        {isImage && (
+        {isImage && imageUrl && (
           <img
-            src={data.hdurl}
+            src={imageUrl}
             alt={data.title}
             className={infoOpen ? "obscured" : ""}
             onLoad={() => setMediaLoaded(true)}
