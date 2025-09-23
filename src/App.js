@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
 import Media from "./components/Media";
-import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
+import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags } from './Utils.js';
 import { fetchAPODData, updateDocumentMeta, getInitialDateFromUrl, changeDate, formatCalendarDate } from './appUtils.js';
 import "./css/App.css";
 import "./css/LoadingSkeleton.css";
