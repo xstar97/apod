@@ -11,7 +11,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null); // store validated image URL
+  const [mediaUrl, setMediaUrl] = useState(null); // validated media URL
 
   // Initialize date from URL query
   useEffect(() => {
@@ -42,23 +42,36 @@ function App() {
     });
   };
 
-  // Determine media type
+  // Validate if video URL exists via HEAD request
+  const validateVideo = async (url) => {
+    if (!url) return false;
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
   const isImage = data?.media_type === "image";
   const isVideo = data?.media_type === "video";
 
-  // Fetch APOD data
+  // Fetch APOD data and validate media
   useEffect(() => {
     if (!date) return;
+
     setLoading(true);
     setMediaLoaded(false);
+    setMediaUrl(null);
 
-    fetch(`${API_ROUTE}?date=${date}`)
-      .then((res) => res.json())
-      .then(async (d) => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${API_ROUTE}?date=${date}`);
+        const d = await res.json();
         setData(d);
 
-        // Dynamic page title
-        document.title = d.title ? `${d.title} - APOD` : "Astronomy Picture of the Day";
+        // Dynamic set meta tags
+        setMetaTags(d);
 
         // Dynamic favicon
         if (d.media_type === "image") {
@@ -67,18 +80,22 @@ function App() {
           updateFavicon("/favicon-video.png");
         }
 
-        // Validate image URL fallback
+        // Validate media URL fallback
         if (d.media_type === "image") {
-          if (await validateImage(d.hdurl)) {
-            setImageUrl(d.hdurl);
-          } else if (await validateImage(d.url)) {
-            setImageUrl(d.url);
-          } else {
-            setImageUrl(null);
-          }
+          if (await validateImage(d.hdurl)) setMediaUrl(d.hdurl);
+          else if (await validateImage(d.url)) setMediaUrl(d.url);
+        } else if (d.media_type === "video") {
+          if (await validateVideo(d.url)) setMediaUrl(d.url);
         }
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error("Failed to fetch APOD data:", err);
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [date]);
 
   const handleDateChange = (inc) => {
@@ -114,9 +131,9 @@ function App() {
         )}
 
         {/* Media display */}
-        {isVideo && (
+        {isVideo && mediaUrl && (
           <iframe
-            src={data.url}
+            src={mediaUrl}
             title={data.title}
             frameBorder="0"
             allowFullScreen
@@ -124,9 +141,9 @@ function App() {
             onLoad={() => setMediaLoaded(true)}
           />
         )}
-        {isImage && imageUrl && (
+        {isImage && mediaUrl && (
           <img
-            src={imageUrl}
+            src={mediaUrl}
             alt={data.title}
             className={infoOpen ? "obscured" : ""}
             onLoad={() => setMediaLoaded(true)}
