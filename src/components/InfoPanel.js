@@ -3,82 +3,116 @@ import "./InfoPanel.css";
 
 const InfoPanel = ({ data, open, onClose }) => {
   const panelRef = useRef(null);
-  const alienChars = "⟊⟒⟟⌖⋉⋇⍾⌬⎅⌖⍙⋉⋇"; // alien charset
+  const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
 
-  const [decodedText, setDecodedText] = useState("");
-  const [setIsDecoding] = useState(false);
+  const getRandomChar = () =>
+    alienChars[Math.floor(Math.random() * alienChars.length)];
+  const initAlienText = (text) =>
+    text.split("").map(() => getRandomChar()).join("");
 
-  // Check if text is encoded (contains alien chars)
-  const isEncoded = (text) => [...text].some((char) => alienChars.includes(char));
+  const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title));
+  const [displayDate, setDisplayDate] = useState(initAlienText(data.date));
+  const [displayDesc, setDisplayDesc] = useState(initAlienText(data.explanation));
+  const [displayCopyRight, setDisplayCopyRight] = useState(
+    data.copyright ? initAlienText(data.copyright) : ""
+  );
+  const [decoding, setDecoding] = useState(false);
 
-  // Decode animation
-  const decodeText = (encoded) => {
-    setIsDecoding(true);
-    setDecodedText(""); // reset
-    let output = "";
-    let index = 0;
+  // --- decodeText moved outside useEffect ---
+  const decodeText = (arr, text, setFn, steps = 10, charDelay = 30) =>
+    new Promise((resolve) => {
+      let index = 0;
+      const interval = setInterval(() => {
+        const step = Math.max(1, Math.floor(text.length / steps));
+        let done = true;
+        for (let i = 0; i < step && index < text.length; i++, index++) {
+          arr[index] = text[index];
+        }
+        setFn([...arr].join(""));
+        if (index < text.length) done = false;
+        if (done) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, charDelay);
+    });
 
-    const interval = setInterval(() => {
-      if (index < encoded.length) {
-        output += encoded[index];
-        setDecodedText(output);
-        index++;
-      } else {
-        clearInterval(interval);
-        setIsDecoding(false);
-      }
-    }, 40);
-  };
-
-  // Handle panel open
   useEffect(() => {
-    if (open && data?.description) {
-      if (isEncoded(data.description)) {
-        decodeText(data.description);
-      } else {
-        setDecodedText(data.description);
-      }
-    }
+    if (!open || !panelRef.current) return;
+
+    const panelNode = panelRef.current;
+
+    const handleTransitionEnd = () => {
+      setDecoding(true);
+
+      const titleArray = data.title.split("").map(() => getRandomChar());
+      const dateArray = data.date.split("").map(() => getRandomChar());
+      const descArray = data.explanation.split("").map(() => getRandomChar());
+      const copyRightArray = data.copyright
+        ? data.copyright.split("").map(() => getRandomChar())
+        : [];
+
+      // Sequential decoding
+      decodeText(titleArray, data.title, setDisplayTitle, 8, 25)
+        .then(() => decodeText(dateArray, data.date, setDisplayDate, 6, 20))
+        .then(() => {
+          if (copyRightArray.length) {
+            return decodeText(
+              copyRightArray,
+              data.copyright,
+              setDisplayCopyRight,
+              6,
+              20
+            );
+          }
+        })
+        .then(() =>
+          decodeText(descArray, data.explanation, setDisplayDesc, 12, 15)
+        );
+
+      panelNode.removeEventListener("transitionend", handleTransitionEnd);
+    };
+
+    panelNode.addEventListener("transitionend", handleTransitionEnd);
+
+    return () => {
+      panelNode.removeEventListener("transitionend", handleTransitionEnd);
+      // Reset to alien text when closing, so it decodes again next open
+      setDisplayTitle(initAlienText(data.title));
+      setDisplayDate(initAlienText(data.date));
+      setDisplayDesc(initAlienText(data.explanation));
+      setDisplayCopyRight(
+        data.copyright ? initAlienText(data.copyright) : ""
+      );
+      setDecoding(false);
+    };
   }, [open, data]);
 
-  // Reset text when panel closes
-  useEffect(() => {
-    if (!open) {
-      setDecodedText("");
-      setIsDecoding(false);
-    }
-  }, [open]);
-
-  // Handle fade overlay for description scroll
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
-  const descRef = useRef(null);
-
-  useEffect(() => {
-    if (descRef.current) {
-      const el = descRef.current;
-      setIsScrollable(el.scrollHeight > el.clientHeight);
-
-      const handleScroll = () => {
-        setIsScrolledToBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 5);
-      };
-
-      el.addEventListener("scroll", handleScroll);
-      return () => el.removeEventListener("scroll", handleScroll);
-    }
-  }, [decodedText, open]);
-
   return (
-    <div ref={panelRef} className={`info-panel ${open ? "open" : "hidden"}`}>
+    <div
+      ref={panelRef}
+      className={`info-panel ${open ? "open" : "hidden"}`}
+    >
       <button className="close-panel" onClick={onClose}>
-        ✖
+        ×
       </button>
-      <h2>{data?.title}</h2>
-      <div className="description-container" ref={descRef}>
-        <div className="description-content">
-          {decodedText}
+
+      <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>
+        {displayTitle}
+      </h1>
+      <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+        {displayDate}
+      </p>
+      {displayCopyRight && (
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+          {displayCopyRight}
+        </p>
+      )}
+      <div className="description-container">
+        <div className="description-content alien-glitch active">
+          {displayDesc}
         </div>
-        {isScrollable && !isScrolledToBottom && <div className="fade-overlay"></div>}
+        <div className="fade-overlay"></div>
       </div>
     </div>
   );
