@@ -13,7 +13,6 @@
   transition: transform 0.4s ease;
   z-index: 10;
 
-  /* Keep text within bounds */
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: anywhere;
@@ -27,16 +26,41 @@
   transform: translateX(100%);
 }
 
+/* Description scroll section */
 .description-container {
+  position: relative;
   margin-top: 20px;
-
-  /* Prevent trailing overflow */
+  max-height: 40vh;   /* default for desktop */
+  overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
 }
 
-/* Alien glitch / active state */
+.description-content {
+  padding-right: 10px; /* space for scrollbar */
+}
+
+/* Fade overlay for scroll hint */
+.fade-overlay {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  height: 40px;
+  width: 100%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.95));
+}
+
+/* Mobile view: description takes 50–75% of viewport height */
+@media (max-width: 768px) {
+  .description-container {
+    min-height: 25vh;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
 .alien-glitch.active {
   transition: all 0.05s linear;
 }
