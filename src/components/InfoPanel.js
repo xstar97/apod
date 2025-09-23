@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import "./InfoPanel.css";
 
 const InfoPanel = ({ data, open, onClose }) => {
+  const panelRef = useRef(null);
   const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
+
   const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
   const initAlienText = (text) => text.split("").map(() => getRandomChar()).join("");
 
@@ -14,10 +16,10 @@ const InfoPanel = ({ data, open, onClose }) => {
   );
   const [decoding, setDecoding] = useState(false);
 
-  const panelRef = useRef(null);
-
   useEffect(() => {
     if (!open || !panelRef.current) return;
+
+    const panelNode = panelRef.current; // capture ref for cleanup
 
     const handleTransitionEnd = () => {
       setDecoding(true);
@@ -47,37 +49,49 @@ const InfoPanel = ({ data, open, onClose }) => {
         ? data.copyright.split("").map(() => getRandomChar())
         : [];
 
-      // Staggered sequential decoding
-      decodeText(titleArray, data.title, setDisplayTitle, 8, 30);
-      setTimeout(() => decodeText(dateArray, data.date, setDisplayDate, 8, 25), 100);
-      setTimeout(() => decodeText(descArray, data.explanation, setDisplayDesc, 12, 20), 200);
-      if (copyRightArray.length) {
-        setTimeout(() => decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 8, 25), 400);
-      }
+      // Sequential decoding: Title → Date → Copyright → Description
+      decodeText(titleArray, data.title, setDisplayTitle, 8, 25)
+        .then(() => decodeText(dateArray, data.date, setDisplayDate, 6, 20))
+        .then(() => {
+          if (copyRightArray.length)
+            return decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 6, 20);
+        })
+        .then(() => decodeText(descArray, data.explanation, setDisplayDesc, 12, 15));
 
-      panelRef.current.removeEventListener("transitionend", handleTransitionEnd);
+      panelNode.removeEventListener("transitionend", handleTransitionEnd);
     };
 
-    panelRef.current.addEventListener("transitionend", handleTransitionEnd);
+    panelNode.addEventListener("transitionend", handleTransitionEnd);
 
     return () => {
-      if (panelRef.current)
-        panelRef.current.removeEventListener("transitionend", handleTransitionEnd);
+      panelNode.removeEventListener("transitionend", handleTransitionEnd);
     };
   }, [open, data]);
 
   return (
-    <div ref={panelRef} className={`info-panel ${open ? "open" : "hidden"}`}>
+    <div
+      ref={panelRef}
+      className={`info-panel ${open ? "open" : "hidden"}`}
+    >
       <button className="close-panel" onClick={onClose}>
         ×
       </button>
-      <h1 className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayTitle}</h1>
-      <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayDate}</p>
+
+      <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>
+        {displayTitle}
+      </h1>
+      <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+        {displayDate}
+      </p>
       {displayCopyRight && (
-        <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayCopyRight}</p>
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+          {displayCopyRight}
+        </p>
       )}
       <div className="description-container">
-        <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayDesc}</p>
+        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+          {displayDesc}
+        </p>
       </div>
     </div>
   );
