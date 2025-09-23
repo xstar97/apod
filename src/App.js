@@ -7,17 +7,20 @@ import "./App.css";
 import "./LoadingSkeleton.css";
 
 function App() {
-  const [date, setDate] = useState(getCurrentDate());
+  // Determine initial date once
+  const getInitialDate = () => {
+    const params = new URLSearchParams(window.location.search);
+    const queryDate = params.get("date");
+    if (queryDate && isValidDate(queryDate)) return queryDate;
+    return getCurrentDate();
+  };
+
+  const [date, setDate] = useState(getInitialDate());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const queryDate = params.get("date");
-    if (queryDate && isValidDate(queryDate)) setDate(queryDate);
-  }, []);
-
+  // Fetch APOD data
   useEffect(() => {
     if (!date) return;
 
@@ -44,7 +47,7 @@ function App() {
 
     fetchData();
   }, [date]);
-  
+
   // Close InfoPanel whenever the date changes
   useEffect(() => {
     setInfoOpen(false);
@@ -68,25 +71,21 @@ function App() {
 
   return (
     <>
-      {/* Media Section */}
       <Media
         mediaType={data.media_type}
         hdurl={data.hdurl}
         url={data.url}
         title={data.title}
         infoOpen={infoOpen}
-        retryCount={3}      // number of retry attempts
-        retryDelay={500}    // delay between retries in ms
+        retryCount={3}
+        retryDelay={500}
       />
-      {/* Info FAB */}
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
 
-      {/* Info Panel */}
       <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
-      {/* Bottom Navigation */}
       <NavigationBar
         currentDate={date}
         onDateChange={handleDateChange}
@@ -95,5 +94,3 @@ function App() {
     </>
   );
 }
-
-export default App;
