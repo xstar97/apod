@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./InfoPanel.css";
 
 const InfoPanel = ({ data, open, onClose }) => {
@@ -14,54 +14,70 @@ const InfoPanel = ({ data, open, onClose }) => {
   );
   const [decoding, setDecoding] = useState(false);
 
+  const panelRef = useRef(null);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open || !panelRef.current) return;
 
-    setDecoding(true);
+    const handleTransitionEnd = () => {
+      setDecoding(true);
 
-    // Local arrays to hold current alien text
-    const titleArray = data.title.split("").map(() => getRandomChar());
-    const dateArray = data.date.split("").map(() => getRandomChar());
-    const descArray = data.explanation.split("").map(() => getRandomChar());
-    const copyRightArray = data.copyright
-      ? data.copyright.split("").map(() => getRandomChar())
-      : [];
+      const decodeText = (arr, text, setFn, steps = 10, charDelay = 30) =>
+        new Promise((resolve) => {
+          let index = 0;
+          const interval = setInterval(() => {
+            const step = Math.max(1, Math.floor(text.length / steps));
+            let done = true;
+            for (let i = 0; i < step && index < text.length; i++, index++) {
+              arr[index] = text[index];
+            }
+            setFn([...arr].join(""));
+            if (index < text.length) done = false;
+            if (done) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, charDelay);
+        });
 
-    // Generic decode function
-    const decodeText = (arr, text, setFn, steps) => {
-      let index = 0;
-      const interval = setInterval(() => {
-        const step = Math.max(1, Math.floor(text.length / steps));
-        let done = true;
-        for (let i = 0; i < step && index < text.length; i++, index++) {
-          arr[index] = text[index];
-        }
-        setFn([...arr].join(""));
-        if (index < text.length) done = false;
-        if (done) clearInterval(interval);
-      }, 30);
+      const titleArray = data.title.split("").map(() => getRandomChar());
+      const dateArray = data.date.split("").map(() => getRandomChar());
+      const descArray = data.explanation.split("").map(() => getRandomChar());
+      const copyRightArray = data.copyright
+        ? data.copyright.split("").map(() => getRandomChar())
+        : [];
+
+      // Staggered sequential decoding
+      decodeText(titleArray, data.title, setDisplayTitle, 8, 30);
+      setTimeout(() => decodeText(dateArray, data.date, setDisplayDate, 8, 25), 100);
+      setTimeout(() => decodeText(descArray, data.explanation, setDisplayDesc, 12, 20), 200);
+      if (copyRightArray.length) {
+        setTimeout(() => decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 8, 25), 400);
+      }
+
+      panelRef.current.removeEventListener("transitionend", handleTransitionEnd);
     };
 
-    decodeText(titleArray, data.title, setDisplayTitle, 8);
-    decodeText(dateArray, data.date, setDisplayDate, 8);
-    decodeText(descArray, data.explanation, setDisplayDesc, 12);
-    if (copyRightArray.length) decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 8);
+    panelRef.current.addEventListener("transitionend", handleTransitionEnd);
 
-    setDecoding(false);
-  }, [open, data]); // ✅ Only depend on `open` and `data`
+    return () => {
+      if (panelRef.current)
+        panelRef.current.removeEventListener("transitionend", handleTransitionEnd);
+    };
+  }, [open, data]);
 
   return (
-    <div className={`info-panel ${open ? "open" : "hidden"}`}>
+    <div ref={panelRef} className={`info-panel ${open ? "open" : "hidden"}`}>
       <button className="close-panel" onClick={onClose}>
         ×
       </button>
-      <h1 className={`alien-glitch ${decoding ? "active" : ""}`}>{displayTitle}</h1>
-      <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDate}</p>
+      <h1 className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayTitle}</h1>
+      <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayDate}</p>
       {displayCopyRight && (
-        <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayCopyRight}</p>
+        <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayCopyRight}</p>
       )}
       <div className="description-container">
-        <p className={`alien-glitch ${decoding ? "active" : ""}`}>{displayDesc}</p>
+        <p className={`alien-glitch ${decoding ? "active fade-in" : ""}`}>{displayDesc}</p>
       </div>
     </div>
   );

@@ -26,10 +26,24 @@
   margin-top: 20px;
 }
 
+/* Alien glitch / active state */
 .alien-glitch.active {
   transition: all 0.05s linear;
 }
 
+/* Fade-in effect for sequential decoding */
+.fade-in {
+  opacity: 0;
+  animation: fadeInText 0.5s forwards;
+}
+
+@keyframes fadeInText {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Close button */
 .close-panel {
   position: absolute;
   top: 10px;
