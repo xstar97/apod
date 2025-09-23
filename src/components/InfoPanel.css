@@ -13,7 +13,6 @@
   transition: transform 0.4s ease;
   z-index: 10;
 
-  /* Keep text within bounds */
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: anywhere;
@@ -28,20 +27,41 @@
 }
 
 .description-container {
+  position: relative;
   margin-top: 20px;
-
-  /* Prevent trailing overflow */
+  max-height: 40vh;
+  overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
 }
 
-/* Alien glitch / active state */
+.description-content {
+  padding-right: 10px;
+}
+
+.fade-overlay {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  height: 40px;
+  width: 100%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.95));
+}
+
+/* Mobile view: clamp description to ~6 lines */
+@media (max-width: 768px) {
+  .description-container {
+    max-height: calc(1.2em * 6);
+    overflow-y: auto;
+  }
+}
+
 .alien-glitch.active {
   transition: all 0.05s linear;
 }
 
-/* Fade-in effect for sequential decoding */
 .fade-in {
   opacity: 0;
   animation: fadeInText 0.5s forwards;
@@ -53,7 +73,6 @@
   }
 }
 
-/* Close button */
 .close-panel {
   position: absolute;
   top: 10px;

@@ -3,6 +3,9 @@ import "./InfoPanel.css";
 
 const InfoPanel = ({ data, open, onClose }) => {
   const panelRef = useRef(null);
+  const descRef = useRef(null);
+  const [atBottom, setAtBottom] = useState(false);
+
   const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
 
   const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
@@ -19,7 +22,7 @@ const InfoPanel = ({ data, open, onClose }) => {
   useEffect(() => {
     if (!open || !panelRef.current) return;
 
-    const panelNode = panelRef.current; // capture ref for cleanup
+    const panelNode = panelRef.current;
 
     const handleTransitionEnd = () => {
       setDecoding(true);
@@ -49,7 +52,6 @@ const InfoPanel = ({ data, open, onClose }) => {
         ? data.copyright.split("").map(() => getRandomChar())
         : [];
 
-      // Sequential decoding: Title → Date → Copyright → Description
       decodeText(titleArray, data.title, setDisplayTitle, 8, 25)
         .then(() => decodeText(dateArray, data.date, setDisplayDate, 6, 20))
         .then(() => {
@@ -67,6 +69,22 @@ const InfoPanel = ({ data, open, onClose }) => {
       panelNode.removeEventListener("transitionend", handleTransitionEnd);
     };
   }, [open, data]);
+
+  // Watch description scroll
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
+      setAtBottom(isAtBottom);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    handleScroll(); // run once on mount
+
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [displayDesc]);
 
   return (
     <div
@@ -88,10 +106,12 @@ const InfoPanel = ({ data, open, onClose }) => {
           {displayCopyRight}
         </p>
       )}
-      <div className="description-container">
-        <p className={`alien-glitch ${decoding ? "active" : ""}`}>
+
+      <div ref={descRef} className="description-container">
+        <div className="description-content alien-glitch active">
           {displayDesc}
-        </p>
+        </div>
+        {!atBottom && <div className="fade-overlay"></div>}
       </div>
     </div>
   );
