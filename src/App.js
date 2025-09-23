@@ -44,6 +44,11 @@ function App() {
 
     fetchData();
   }, [date]);
+  
+  // Close InfoPanel whenever the date changes
+  useEffect(() => {
+    setInfoOpen(false);
+  }, [date]);
 
   const handleDateChange = (inc) => {
     const newDate = new Date(date);
