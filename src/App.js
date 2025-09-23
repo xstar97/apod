@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
+import Media from "./components/Media";
 import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
 import "./App.css";
 import "./LoadingSkeleton.css";
@@ -9,60 +10,18 @@ function App() {
   const [date, setDate] = useState(getCurrentDate());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [mediaLoaded, setMediaLoaded] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [mediaUrl, setMediaUrl] = useState(null); // validated media URL
 
-  // Initialize date from URL query
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const queryDate = params.get("date");
     if (queryDate && isValidDate(queryDate)) setDate(queryDate);
   }, []);
 
-  // Helper to dynamically set favicon
-  const updateFavicon = (url) => {
-    let link = document.querySelector("link[rel~='icon']");
-    if (!link) {
-      link = document.createElement("link");
-      link.rel = "icon";
-      document.getElementsByTagName("head")[0].appendChild(link);
-    }
-    link.href = url;
-  };
-
-  // Validate if image URL exists
-  const validateImage = (url) => {
-    return new Promise((resolve) => {
-      if (!url) return resolve(false);
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = url;
-    });
-  };
-
-  // Validate if video URL exists via HEAD request
-  const validateVideo = async (url) => {
-    if (!url) return false;
-    try {
-      const res = await fetch(url, { method: "HEAD" });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  };
-
-  const isImage = data?.media_type === "image";
-  const isVideo = data?.media_type === "video";
-
-  // Fetch APOD data and validate media
   useEffect(() => {
     if (!date) return;
 
     setLoading(true);
-    setMediaLoaded(false);
-    setMediaUrl(null);
 
     const fetchData = async () => {
       try {
@@ -70,30 +29,11 @@ function App() {
         const d = await res.json();
         setData(d);
 
-        // Set the page title using data.title
-        document.title = data.title || TITLE;
-        document.description = data.description || "";
-        // Set the favicon using data.hdurl or data.url
-        const faviconUrl = data.hdurl || data.url;
-        if (faviconUrl) {
-          setFavicon(faviconUrl);
-        }
-        setMetaTags(data);
-
-        // Dynamic favicon
-        if (d.media_type === "image") {
-          updateFavicon(d.url);
-        } else {
-          updateFavicon("/favicon-video.png");
-        }
-
-        // Validate media URL fallback
-        if (d.media_type === "image") {
-          if (await validateImage(d.hdurl)) setMediaUrl(d.hdurl);
-          else if (await validateImage(d.url)) setMediaUrl(d.url);
-        } else if (d.media_type === "video") {
-          if (await validateVideo(d.url)) setMediaUrl(d.url);
-        }
+        document.title = d.title || TITLE;
+        document.description = d.description || "";
+        const faviconUrl = d.hdurl || d.url;
+        if (faviconUrl) setFavicon(faviconUrl);
+        setMetaTags(d);
       } catch (err) {
         console.error("Failed to fetch APOD data:", err);
         setData(null);
@@ -121,55 +61,27 @@ function App() {
 
   if (loading || !data) return null;
 
-  // Generate animated alien skeleton string
-  const getAlienText = (length = 20) => {
-    const chars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-  };
-
   return (
     <>
-      <div className="media-container">
-        {/* Alien skeleton overlay */}
-        {!mediaLoaded && (
-          <div className={`alien-skeleton ${isVideo ? "video-skeleton" : ""}`}>
-            {getAlienText(40)}
-          </div>
-        )}
-
-        {/* Media display */}
-        {isVideo && mediaUrl && (
-          <iframe
-            src={mediaUrl}
-            title={data.title}
-            frameBorder="0"
-            allowFullScreen
-            className={infoOpen ? "obscured" : ""}
-            onLoad={() => setMediaLoaded(true)}
-          />
-        )}
-        {isImage && mediaUrl && (
-          <img
-            src={mediaUrl}
-            alt={data.title}
-            className={infoOpen ? "obscured" : ""}
-            onLoad={() => setMediaLoaded(true)}
-          />
-        )}
-
-        {/* Obscure overlay when info panel open */}
-        {infoOpen && <div className="media-overlay"></div>}
-      </div>
-
-      {/* Info FAB button */}
+      {/* Media Section */}
+      <Media
+        mediaType={data.media_type}
+        hdurl={data.hdurl}
+        url={data.url}
+        title={data.title}
+        infoOpen={infoOpen}
+        retryCount={3}      // number of retry attempts
+        retryDelay={500}    // delay between retries in ms
+      />
+      {/* Info FAB */}
       <button className="fab-info" onClick={() => setInfoOpen(!infoOpen)}>
         {infoOpen ? "×" : "i"}
       </button>
 
-      {/* Slide-out info panel */}
+      {/* Info Panel */}
       <InfoPanel data={data} open={infoOpen} onClose={() => setInfoOpen(false)} />
 
-      {/* Bottom navigation */}
+      {/* Bottom Navigation */}
       <NavigationBar
         currentDate={date}
         onDateChange={handleDateChange}
