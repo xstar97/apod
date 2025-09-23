@@ -1,5 +1,5 @@
 import React from "react";
-import "./NavigationBar.css";
+import "./index.css";
 
 const NavigationBar = ({ currentDate, onDateChange, onCalendarChange }) => {
   const today = new Date().toISOString().split("T")[0];

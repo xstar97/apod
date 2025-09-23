@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./InfoPanel.css";
+import {
+  initAlienText,
+  getRandomChar,
+  decodeText,
+} from "./decoder";
+import "./index.css";
 
 const InfoPanel = ({ data, open, onClose }) => {
   const panelRef = useRef(null);
-  const descRef = useRef(null);
-  const [atBottom, setAtBottom] = useState(false);
-
-  const alienChars = "⟊⟒⟟⌖⋉⋇⍾⧖⚲☌☍⌬✧✦✴⋆✪✫✬✭✮✯✰☄";
-
-  const getRandomChar = () => alienChars[Math.floor(Math.random() * alienChars.length)];
-  const initAlienText = (text) => text.split("").map(() => getRandomChar()).join("");
 
   const [displayTitle, setDisplayTitle] = useState(initAlienText(data.title));
   const [displayDate, setDisplayDate] = useState(initAlienText(data.date));
@@ -27,24 +25,6 @@ const InfoPanel = ({ data, open, onClose }) => {
     const handleTransitionEnd = () => {
       setDecoding(true);
 
-      const decodeText = (arr, text, setFn, steps = 10, charDelay = 30) =>
-        new Promise((resolve) => {
-          let index = 0;
-          const interval = setInterval(() => {
-            const step = Math.max(1, Math.floor(text.length / steps));
-            let done = true;
-            for (let i = 0; i < step && index < text.length; i++, index++) {
-              arr[index] = text[index];
-            }
-            setFn([...arr].join(""));
-            if (index < text.length) done = false;
-            if (done) {
-              clearInterval(interval);
-              resolve();
-            }
-          }, charDelay);
-        });
-
       const titleArray = data.title.split("").map(() => getRandomChar());
       const dateArray = data.date.split("").map(() => getRandomChar());
       const descArray = data.explanation.split("").map(() => getRandomChar());
@@ -52,13 +32,23 @@ const InfoPanel = ({ data, open, onClose }) => {
         ? data.copyright.split("").map(() => getRandomChar())
         : [];
 
+      // Sequential decoding: Title → Date → Copyright → Description
       decodeText(titleArray, data.title, setDisplayTitle, 8, 25)
         .then(() => decodeText(dateArray, data.date, setDisplayDate, 6, 20))
         .then(() => {
-          if (copyRightArray.length)
-            return decodeText(copyRightArray, data.copyright, setDisplayCopyRight, 6, 20);
+          if (copyRightArray.length) {
+            return decodeText(
+              copyRightArray,
+              data.copyright,
+              setDisplayCopyRight,
+              6,
+              20
+            );
+          }
         })
-        .then(() => decodeText(descArray, data.explanation, setDisplayDesc, 12, 15));
+        .then(() =>
+          decodeText(descArray, data.explanation, setDisplayDesc, 12, 15)
+        );
 
       panelNode.removeEventListener("transitionend", handleTransitionEnd);
     };
@@ -67,24 +57,16 @@ const InfoPanel = ({ data, open, onClose }) => {
 
     return () => {
       panelNode.removeEventListener("transitionend", handleTransitionEnd);
+      // Reset text to alien glyphs on close
+      setDisplayTitle(initAlienText(data.title));
+      setDisplayDate(initAlienText(data.date));
+      setDisplayDesc(initAlienText(data.explanation));
+      setDisplayCopyRight(
+        data.copyright ? initAlienText(data.copyright) : ""
+      );
+      setDecoding(false);
     };
   }, [open, data]);
-
-  // Watch description scroll
-  useEffect(() => {
-    const el = descRef.current;
-    if (!el) return;
-
-    const handleScroll = () => {
-      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
-      setAtBottom(isAtBottom);
-    };
-
-    el.addEventListener("scroll", handleScroll);
-    handleScroll(); // run once on mount
-
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [displayDesc]);
 
   return (
     <div
@@ -106,12 +88,11 @@ const InfoPanel = ({ data, open, onClose }) => {
           {displayCopyRight}
         </p>
       )}
-
-      <div ref={descRef} className="description-container">
+      <div className="description-container">
         <div className="description-content alien-glitch active">
           {displayDesc}
         </div>
-        {!atBottom && <div className="fade-overlay"></div>}
+        <div className="fade-overlay"></div>
       </div>
     </div>
   );
