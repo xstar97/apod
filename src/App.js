@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import InfoPanel from "./components/InfoPanel";
 import NavigationBar from "./components/NavigationBar";
-import { API_ROUTE, getCurrentDate, updateUrlQueryParam, isValidDate } from "./Utils";
+import { isValidDate, getCurrentDate, updateUrlQueryParam, setFavicon, setMetaTags, TITLE, API_ROUTE } from './Utils.js';
 import "./App.css";
 import "./LoadingSkeleton.css";
 
@@ -70,8 +70,15 @@ function App() {
         const d = await res.json();
         setData(d);
 
-        // Dynamic set meta tags
-        setMetaTags(d);
+        // Set the page title using data.title
+        document.title = data.title || TITLE;
+        document.description = data.description || "";
+        // Set the favicon using data.hdurl or data.url
+        const faviconUrl = data.hdurl || data.url;
+        if (faviconUrl) {
+          setFavicon(faviconUrl);
+        }
+        setMetaTags(data);
 
         // Dynamic favicon
         if (d.media_type === "image") {
