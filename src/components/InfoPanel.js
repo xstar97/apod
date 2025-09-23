@@ -6,7 +6,7 @@ const InfoPanel = ({ data, open, onClose }) => {
   const alienChars = "⟊⟒⟟⌖⋉⋇⍾⌬⎅⌖⍙⋉⋇"; // alien charset
 
   const [decodedText, setDecodedText] = useState("");
-  const [isDecoding, setIsDecoding] = useState(false);
+  const [setIsDecoding] = useState(false);
 
   // Check if text is encoded (contains alien chars)
   const isEncoded = (text) => [...text].some((char) => alienChars.includes(char));
