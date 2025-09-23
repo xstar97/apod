@@ -55,8 +55,8 @@
 /* Mobile view: description takes 50–75% of viewport height */
 @media (max-width: 768px) {
   .description-container {
-    min-height: 50vh;
-    max-height: 75vh;
+    min-height: 25vh;
+    max-height: 50vh;
     overflow-y: auto;
   }
 }
